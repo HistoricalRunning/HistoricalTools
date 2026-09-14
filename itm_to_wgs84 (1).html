@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>המרת ITM ל-WGS84</title>
+  <style>
+    :root {
+      font-family: Arial, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f3f5f7;
+      color: #17202a;
+    }
+    .card {
+      width: min(680px, calc(100% - 32px));
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 35px rgba(0,0,0,.12);
+      padding: 28px;
+      box-sizing: border-box;
+    }
+    h1 { margin-top: 0; font-size: 1.6rem; }
+    p { line-height: 1.55; }
+    label { display:block; font-weight:700; margin: 18px 0 8px; }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 1.15rem;
+      padding: 13px 14px;
+      border: 1px solid #b8c2cc;
+      border-radius: 10px;
+      direction: ltr;
+      text-align: left;
+    }
+    .buttons {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+    button, a.button {
+      appearance:none;
+      border:0;
+      border-radius:10px;
+      padding:11px 16px;
+      font-size:1rem;
+      cursor:pointer;
+      text-decoration:none;
+      background:#1f6feb;
+      color:white;
+    }
+    button.secondary, a.secondary { background:#5b6573; }
+    .result {
+      margin-top:20px;
+      padding:16px;
+      border-radius:12px;
+      background:#eef5ff;
+      border:1px solid #c9ddff;
+      display:none;
+    }
+    .coord {
+      direction:ltr;
+      text-align:left;
+      font-family: Consolas, Monaco, monospace;
+      font-size:1.12rem;
+      margin:8px 0;
+      word-break:break-all;
+    }
+    .error {
+      margin-top:14px;
+      padding:12px;
+      border-radius:10px;
+      background:#fff0f0;
+      color:#8a1c1c;
+      display:none;
+    }
+    small { color:#667085; }
+    @media (prefers-color-scheme: dark) {
+      body { background:#111827; color:#e5e7eb; }
+      .card { background:#1f2937; }
+      input { background:#111827; color:#fff; border-color:#4b5563; }
+      .result { background:#172554; border-color:#1d4ed8; }
+      .error { background:#451a1a; color:#fecaca; }
+      small { color:#aab3c0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>המרת רשת ישראל החדשה (ITM) ל־WGS84</h1>
+    <p>
+      הזן נ״צ בפורמט <b>מזרח / צפון</b>, לדוגמה:
+      <span dir="ltr"><b>216948/635117</b></span>.
+      ניתן גם להשתמש בפסיק או ברווח.
+    </p>
+
+    <label for="itm">נ״צ ITM</label>
+    <input id="itm" value="216948/635117" autocomplete="off"
+           placeholder="216948/635117" />
+
+    <div class="buttons">
+      <button id="convert">המר</button>
+      <button id="clear" class="secondary">נקה</button>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <section id="result" class="result">
+      <strong>WGS84</strong>
+      <div id="latlon" class="coord"></div>
+      <div id="details"></div>
+      <div class="buttons">
+        <button id="copy" class="secondary">העתק קואורדינטות</button>
+        <a id="mapeak" class="button" target="_blank" rel="noopener">פתח ב־MAPeak</a>
+        <a id="maps" class="button" target="_blank" rel="noopener">פתח ב־Google Maps</a>
+        <a id="waze" class="button" target="_blank" rel="noopener">פתח ב־Waze</a>
+      </div>
+    </section>
+
+    <p><small>
+      ההמרה מתבססת על EPSG:2039 (Israel 1993 / Israeli TM Grid), כולל טרנספורמציית datum ל־WGS84.
+      הקובץ פועל מקומית ואינו דורש חיבור לאינטרנט לצורך החישוב.
+    </small></p>
+  </main>
+
+<script>
+"use strict";
+
+const DEG = 180 / Math.PI;
+const RAD = Math.PI / 180;
+
+function meridionalArc(phi, a, e2) {
+  return a * (
+    (1 - e2/4 - 3*e2*e2/64 - 5*e2*e2*e2/256) * phi
+    - (3*e2/8 + 3*e2*e2/32 + 45*e2*e2*e2/1024) * Math.sin(2*phi)
+    + (15*e2*e2/256 + 45*e2*e2*e2/1024) * Math.sin(4*phi)
+    - (35*e2*e2*e2/3072) * Math.sin(6*phi)
+  );
+}
+
+function itmToIsrael1993(E, N) {
+  const a = 6378137.0;
+  const rf = 298.257222101;
+  const f = 1 / rf;
+  const e2 = f * (2 - f);
+  const ep2 = e2 / (1 - e2);
+
+  const lat0 = 31.7343936111111 * RAD;
+  const lon0 = 35.2045169444444 * RAD;
+  const k0 = 1.0000067;
+  const FE = 219529.584;
+  const FN = 626907.39;
+
+  const M0 = meridionalArc(lat0, a, e2);
+  const M1 = M0 + (N - FN) / k0;
+  const mu = M1 / (a * (1 - e2/4 - 3*e2*e2/64 - 5*e2*e2*e2/256));
+
+  const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+  const phi1 =
+    mu
+    + (3*e1/2 - 27*Math.pow(e1,3)/32) * Math.sin(2*mu)
+    + (21*e1*e1/16 - 55*Math.pow(e1,4)/32) * Math.sin(4*mu)
+    + (151*Math.pow(e1,3)/96) * Math.sin(6*mu)
+    + (1097*Math.pow(e1,4)/512) * Math.sin(8*mu);
+
+  const C1 = ep2 * Math.pow(Math.cos(phi1), 2);
+  const T1 = Math.pow(Math.tan(phi1), 2);
+  const N1 = a / Math.sqrt(1 - e2 * Math.pow(Math.sin(phi1), 2));
+  const R1 = a * (1 - e2) / Math.pow(1 - e2 * Math.pow(Math.sin(phi1), 2), 1.5);
+  const D = (E - FE) / (N1 * k0);
+
+  const lat = phi1 - (N1 * Math.tan(phi1) / R1) * (
+      D*D/2
+      - (5 + 3*T1 + 10*C1 - 4*C1*C1 - 9*ep2) * Math.pow(D,4)/24
+      + (61 + 90*T1 + 298*C1 + 45*T1*T1 - 252*ep2 - 3*C1*C1) * Math.pow(D,6)/720
+  );
+
+  const lon = lon0 + (
+      D
+      - (1 + 2*T1 + C1) * Math.pow(D,3)/6
+      + (5 - 2*C1 + 28*T1 - 3*C1*C1 + 8*ep2 + 24*T1*T1) * Math.pow(D,5)/120
+  ) / Math.cos(phi1);
+
+  return { lat, lon };
+}
+
+function geodeticToECEF(lat, lon, h, a, rf) {
+  const f = 1 / rf;
+  const e2 = f * (2 - f);
+  const nu = a / Math.sqrt(1 - e2 * Math.pow(Math.sin(lat), 2));
+  return {
+    x: (nu + h) * Math.cos(lat) * Math.cos(lon),
+    y: (nu + h) * Math.cos(lat) * Math.sin(lon),
+    z: (nu * (1 - e2) + h) * Math.sin(lat)
+  };
+}
+
+function helmertIsrael93ToWGS84(x, y, z) {
+  // EPSG transformation parameters used for Israel 1993 -> WGS84.
+  const dx = 23.772, dy = 17.49, dz = 17.859;
+  const secToRad = Math.PI / (180 * 3600);
+  const rx = -0.3132 * secToRad;
+  const ry = -1.85274 * secToRad;
+  const rz =  1.67299 * secToRad;
+  const m = 1 + (-5.4262 * 1e-6);
+
+  return {
+    x: dx + m*x - rz*y + ry*z,
+    y: dy + rz*x + m*y - rx*z,
+    z: dz - ry*x + rx*y + m*z
+  };
+}
+
+function ecefToWGS84(x, y, z) {
+  const a = 6378137.0;
+  const rf = 298.257223563;
+  const f = 1 / rf;
+  const e2 = f * (2 - f);
+
+  const lon = Math.atan2(y, x);
+  const p = Math.hypot(x, y);
+  let lat = Math.atan2(z, p * (1 - e2));
+  let h = 0;
+
+  for (let i = 0; i < 12; i++) {
+    const nu = a / Math.sqrt(1 - e2 * Math.pow(Math.sin(lat), 2));
+    h = p / Math.cos(lat) - nu;
+    const next = Math.atan2(z, p * (1 - e2 * nu / (nu + h)));
+    if (Math.abs(next - lat) < 1e-14) {
+      lat = next;
+      break;
+    }
+    lat = next;
+  }
+  return { lat: lat * DEG, lon: lon * DEG };
+}
+
+function itmToWGS84(E, N) {
+  const g = itmToIsrael1993(E, N);
+  const p = geodeticToECEF(g.lat, g.lon, 0, 6378137.0, 298.257222101);
+  const w = helmertIsrael93ToWGS84(p.x, p.y, p.z);
+  return ecefToWGS84(w.x, w.y, w.z);
+}
+
+function parseITM(text) {
+  const cleaned = text.trim().replace(/[;|]/g, " ");
+  const nums = cleaned.match(/-?\d+(?:\.\d+)?/g);
+  if (!nums || nums.length < 2) {
+    throw new Error("לא הצלחתי לזהות שני מספרים. לדוגמה: 216948/635117");
+  }
+  const E = Number(nums[0]);
+  const N = Number(nums[1]);
+  if (!Number.isFinite(E) || !Number.isFinite(N)) {
+    throw new Error("הקואורדינטות אינן תקינות.");
+  }
+  // Practical EPSG:2039 bounds with a little tolerance.
+  if (E < 100000 || E > 300000 || N < 350000 || N > 820000) {
+    throw new Error("הערכים אינם נראים כמו נ״צ ברשת ישראל החדשה (ITM).");
+  }
+  return { E, N };
+}
+
+const input = document.getElementById("itm");
+const result = document.getElementById("result");
+const errorBox = document.getElementById("error");
+const latlon = document.getElementById("latlon");
+const details = document.getElementById("details");
+const mapeak = document.getElementById("mapeak");
+const maps = document.getElementById("maps");
+const waze = document.getElementById("waze");
+
+function convert() {
+  errorBox.style.display = "none";
+  result.style.display = "none";
+  try {
+    const { E, N } = parseITM(input.value);
+    const out = itmToWGS84(E, N);
+    const s = `${out.lat.toFixed(7)}, ${out.lon.toFixed(7)}`;
+    latlon.textContent = s;
+    details.innerHTML =
+      `Latitude: <span dir="ltr">${out.lat.toFixed(7)}</span><br>` +
+      `Longitude: <span dir="ltr">${out.lon.toFixed(7)}</span>`;
+    mapeak.href = `https://mapeak.com/poi/Coordinates/${out.lat.toFixed(6)}_${out.lon.toFixed(6)}`;
+    maps.href = `https://www.google.com/maps?q=${out.lat},${out.lon}`;
+    waze.href = `https://www.waze.com/ul?ll=${out.lat},${out.lon}&navigate=yes`;
+    result.style.display = "block";
+    result.dataset.coord = s;
+  } catch (err) {
+    errorBox.textContent = err.message || String(err);
+    errorBox.style.display = "block";
+  }
+}
+
+document.getElementById("convert").addEventListener("click", convert);
+document.getElementById("clear").addEventListener("click", () => {
+  input.value = "";
+  result.style.display = "none";
+  errorBox.style.display = "none";
+  input.focus();
+});
+document.getElementById("copy").addEventListener("click", async () => {
+  const text = result.dataset.coord || "";
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById("copy").textContent = "הועתק ✓";
+    setTimeout(() => document.getElementById("copy").textContent = "העתק קואורדינטות", 1200);
+  } catch {
+    window.prompt("העתק את הקואורדינטות:", text);
+  }
+});
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") convert();
+});
+
+convert();
+</script>
+</body>
+</html>
