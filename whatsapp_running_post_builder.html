@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="רישום ריצה">
+    <meta name="theme-color" content="#0a7ea4">
+    <meta name="description" content="אפליקציה לייצור הודעות ריצה לווצ'אפ">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22רישום%20ריצה%20חדש%22,%22short_name%22:%22ריצה%22,%22description%22:%22אפליקציה%20לייצור%20הודעות%20ריצה%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%230a7ea4%22,%22orientation%22:%22portrait-primary%22}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a7ea4' width='100' height='100'/><text x='50' y='60' font-size='60' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'>🏃</text></svg>">
+    <title>רישום ריצה חדש</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --text-accent: #0a7ea4;
+            --surface-1: #ffffff;
+            --surface-2: #f5f5f5;
+            --border: #d0d0d0;
+            --fill-primary: #0a7ea4;
+            --on-primary: #ffffff;
+            --radius: 8px;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: #f5f5f5;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 0;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        #app {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem;
+            padding-top: max(1rem, env(safe-area-inset-top));
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-section {
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            background: var(--surface-1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .form-header input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .form-header label {
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--fill-primary);
+            box-shadow: 0 0 0 2px rgba(10, 126, 164, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[readonly] {
+            background: transparent;
+        }
+
+        .auto-header-box {
+            padding: 8px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            border: 0.5px solid var(--border);
+        }
+
+        #routes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        button.add-route {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: transparent;
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-accent);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        button.add-route:hover {
+            background: var(--surface-2);
+        }
+
+        .preview-section {
+            border-top: 0.5px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .preview-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        #preview {
+            background: var(--surface-1);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 14px;
+            color: var(--text-primary);
+            min-height: 200px;
+            font-family: monospace;
+            line-height: 1.6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        button.action {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        button.primary {
+            background: var(--fill-primary);
+            color: var(--on-primary);
+        }
+
+        button.primary:hover {
+            background: #086a8a;
+            box-shadow: 0 2px 8px rgba(10, 126, 164, 0.2);
+        }
+
+        button.secondary {
+            background: transparent;
+            border: 0.5px solid var(--border);
+            color: var(--text-accent);
+        }
+
+        button.secondary:hover {
+            background: var(--surface-2);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+
+            #app {
+                gap: 1rem;
+            }
+
+            h2 {
+                font-size: 20px;
+                margin: 1rem 1rem 0.5rem 1rem;
+            }
+
+            .form-section {
+                border-radius: 12px;
+                margin: 0 1rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                padding: 0 1rem 1rem 1rem;
+                gap: 10px;
+            }
+
+            .preview-section {
+                padding: 1rem;
+            }
+
+            #preview {
+                min-height: 150px;
+                font-size: 13px;
+            }
+
+            button.action {
+                padding: 14px;
+                border-radius: 12px;
+                font-size: 15px;
+                font-weight: 600;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>רישום ריצה חדש</h2>
+
+        <div>
+            <!-- Header (Date & Description) -->
+            <div class="form-section">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-header" checked />
+                    <label for="toggle-header">תאריך וכותרת</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="date-picker">תאריך:</label>
+                    <input type="date" id="date-picker" />
+                </div>
+
+                <div class="form-group auto-header-box">
+                    <label for="auto-header">כותרת (נוצרת אוטומטית):</label>
+                    <input type="text" id="auto-header" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="custom-header">או כתוב כותרת משלך:</label>
+                    <input type="text" id="custom-header" placeholder="שישי 7.8 (אם תרצה לשנות)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">תיאור הריצה:</label>
+                    <textarea id="description" placeholder="ביקור בעיר...">ביקור בעיר שמעולם לא חוברה לה יחדיו, בריצה אורבנית בירושלים כ-11 קמ.</textarea>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-section" style="margin-top: 1rem;">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-location" checked />
+                    <label for="toggle-location">מיקום</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="location" placeholder="https://waze.com/..." value="https://waze.com/ul/hsv9h9rnn6" />
+                </div>
+            </div>
+
+            <!-- Time -->
+            <div class="form-section" style="margin-top: 1rem;">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-time" checked />
+                    <label for="toggle-time">שעה</label>
+                </div>
+                <div class="form-group">
+                    <input type="time" id="time" value="06:00" />
+                </div>
+            </div>
+
+            <!-- Routes -->
+            <div class="form-section" style="margin-top: 1rem;">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-routes" checked />
+                    <label for="toggle-routes">מסלול</label>
+                </div>
+                <div id="routes-container">
+                    <input type="text" class="route-input" placeholder="https://israelhiking.osm.org.il/..." value="https://israelhiking.osm.org.il/share/OEAiFuefxL" />
+                    <input type="text" class="route-input" placeholder="https://connect.garmin.com/..." value="https://connect.garmin.com/modern/course/395507455" />
+                </div>
+                <button class="add-route" onclick="addRouteInput()">+ הוסף מסלול</button>
+            </div>
+
+            <!-- Reading -->
+            <div class="form-section" style="margin-top: 1rem;">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-reading" checked />
+                    <label for="toggle-reading">לקריאה נוספת</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="reading" placeholder="https://tinyurl.com/..." value="https://tinyurl.com/URJLM" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-section">
+            <h3 class="preview-header">תצוגה מקדימה</h3>
+            <div id="preview"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="action primary" onclick="copyToClipboard()">📋 העתק ללוח</button>
+            <button class="action secondary" onclick="openWhatsApp()">💬 שלח לווצ"אפ</button>
+        </div>
+    </div>
+
+    <script>
+        const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+
+        function formatDateInHebrew(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString + 'T00:00:00');
+            const dayName = dayNames[date.getDay()];
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            return `${dayName} ${day}.${month}`;
+        }
+
+        function updateAutoHeader() {
+            const dateValue = document.getElementById('date-picker').value;
+            const formatted = formatDateInHebrew(dateValue);
+            document.getElementById('auto-header').value = formatted;
+            updatePreview();
+        }
+
+        function buildMessage() {
+            let message = '';
+
+            // Header
+            if (document.getElementById('toggle-header').checked) {
+                const customHeader = document.getElementById('custom-header').value.trim();
+                const autoHeader = document.getElementById('auto-header').value.trim();
+                const header = customHeader || autoHeader;
+
+                const desc = document.getElementById('description').value.trim();
+                if (header) message += `*${header}*\n`;
+                if (desc) message += `${desc}\n\n`;
+            }
+
+            // Location
+            if (document.getElementById('toggle-location').checked) {
+                const location = document.getElementById('location').value.trim();
+                if (location) message += `*מיקום:*\n${location}\n\n`;
+            }
+
+            // Time
+            if (document.getElementById('toggle-time').checked) {
+                const time = document.getElementById('time').value.trim();
+                if (time) message += `*שעה:*\n${time}\n\n`;
+            }
+
+            // Routes
+            if (document.getElementById('toggle-routes').checked) {
+                const routes = Array.from(document.querySelectorAll('.route-input'))
+                    .map(input => input.value.trim())
+                    .filter(val => val);
+                if (routes.length > 0) {
+                    message += `*מסלול:*\n`;
+                    routes.forEach(route => {
+                        message += `${route}\n`;
+                    });
+                    message += '\n';
+                }
+            }
+
+            // Reading
+            if (document.getElementById('toggle-reading').checked) {
+                const reading = document.getElementById('reading').value.trim();
+                if (reading) message += `*לקריאה נוספת:*\n${reading}`;
+            }
+
+            return message;
+        }
+
+        function updatePreview() {
+            document.getElementById('preview').textContent = buildMessage();
+        }
+
+        function addRouteInput() {
+            const container = document.getElementById('routes-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'route-input';
+            input.placeholder = 'https://...';
+            input.addEventListener('input', updatePreview);
+            container.appendChild(input);
+        }
+
+        function copyToClipboard() {
+            const text = buildMessage();
+            navigator.clipboard.writeText(text).then(() => {
+                alert('ההודעה הועתקה ללוח!');
+            });
+        }
+
+        function openWhatsApp() {
+            const text = buildMessage();
+            const encoded = encodeURIComponent(text);
+            window.open(`https://wa.me/?text=${encoded}`, '_blank');
+        }
+
+        // Setup event listeners
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updatePreview);
+        });
+
+        document.getElementById('date-picker').addEventListener('change', updateAutoHeader);
+        document.getElementById('custom-header').addEventListener('input', updatePreview);
+        document.getElementById('description').addEventListener('input', updatePreview);
+        document.getElementById('location').addEventListener('input', updatePreview);
+        document.getElementById('time').addEventListener('input', updatePreview);
+        document.getElementById('reading').addEventListener('input', updatePreview);
+
+        document.querySelectorAll('.route-input').forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        // Initial setup - set today's date by default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date-picker').value = today;
+        updateAutoHeader();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  
+  event.respondWith(
+    caches.open('app-v1').then((cache) => {
+      return cache.match(event.request).then((response) => {
+        if (response) return response;
+        return fetch(event.request).then((response) => {
+          cache.put(event.request, response.clone());
+          return response;
+        });
+      });
+    }).catch(() => {
+      return caches.match(event.request);
+    })
+  );
+});
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(url).catch(() => {
+                // Service Worker registration failed, app still works
+            });
+        }
+
+        // Prevent scrolling on iOS
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target.closest('input, textarea, button')) return;
+        }, { passive: true });
+    </script>
+</body>
+</html>
