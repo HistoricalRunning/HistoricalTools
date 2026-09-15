@@ -23,7 +23,6 @@
   </div>
   <div class="searchOptions">
     <button id="googleNew" class="googleSearch" type="button">Google — חלון חדש</button>
-    <button id="googleSame" class="googleSearch" type="button">Google — חלון נוכחי</button>
     <span class="small">Google מחפש: <span dir="ltr">site:amudanan.co.il</span> + מחרוזת החיפוש, ללא צריכת קרדיטי AI.</span>
   </div>
   <div class="passwordrow">
@@ -74,12 +73,10 @@ passwordEl.value=sessionStorage.getItem('historicalToolsPassword')||'';
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function mapLinks(lat,lon){return {google:`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,mapeak:`https://mapeak.com/map/17/${lat}/${lon}`};}
 function googleSearchUrl(query){return 'https://www.google.com/search?q='+encodeURIComponent('site:amudanan.co.il '+query.trim());}
-function openGoogle(newWindow){
+function openGoogle(){
   const q=qEl.value.trim();
   if(!q){status.className='status warn';status.textContent='יש להזין מחרוזת לחיפוש.';qEl.focus();return;}
-  const url=googleSearchUrl(q);
-  if(newWindow) window.open(url,'_blank','noopener');
-  else window.location.href=url;
+  window.open(googleSearchUrl(q),'_blank','noopener');
 }
 function badge(conf){const c=['high','medium','low'].includes(conf)?conf:'low';return `<span class="badge ${c}">${esc(conf||'unknown')}</span>`;}
 function authHeaders(){return {'X-API-Password':passwordEl.value};}
@@ -183,8 +180,7 @@ document.addEventListener('click',async e=>{
   if(historyItem){runSearch(false,historyItem.dataset.query||'');}
 });
 $('#search').addEventListener('click',()=>runSearch(false));
-$('#googleNew').addEventListener('click',()=>openGoogle(true));
-$('#googleSame').addEventListener('click',()=>openGoogle(false));
+$('#googleNew').addEventListener('click',openGoogle);
 $('#refreshSearch').addEventListener('click',()=>{if(activeQuery)runSearch(true,activeQuery);});
 $('#loadHistory').addEventListener('click',loadHistory);
 $('#reloadHistory').addEventListener('click',loadHistory);
