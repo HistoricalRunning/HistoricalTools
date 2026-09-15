@@ -44,10 +44,14 @@ function mapLinks(lat,lon){return {google:`https://www.google.com/maps/search/?a
 function badge(conf){const c=['high','medium','low'].includes(conf)?conf:'low';return `<span class="badge ${c}">${esc(conf||'unknown')}</span>`;}
 
 function ensureMap(){
-  if(map) return;
   mapEl.style.display='block';
+  if(map){
+    setTimeout(()=>map.invalidateSize(),0);
+    return;
+  }
   map=L.map('map').setView([31.8,35.0],8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  setTimeout(()=>map.invalidateSize(),0);
 }
 function clearMap(){if(map){markers.forEach(m=>m.remove());markers=[];}mapEl.style.display='none';}
 function addMarkers(items){
@@ -60,6 +64,7 @@ function addMarkers(items){
     const m=L.marker([lat,lon]).addTo(map).bindPopup(popup); markers.push(m); bounds.push([lat,lon]);
   });
   if(bounds.length===1) map.setView(bounds[0],14); else if(bounds.length>1) map.fitBounds(bounds,{padding:[30,30]});
+  setTimeout(()=>map.invalidateSize(),0);
 }
 function renderItem(x){
   const lat=Number(x.latitude),lon=Number(x.longitude),l=mapLinks(lat,lon);
