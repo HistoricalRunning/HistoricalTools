@@ -4,184 +4,75 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>חיפוש אתרים בעמוד ענן</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--bg:#f5f7f9;--card:#fff;--ink:#17212b;--muted:#667085;--line:#d9e1e8;--blue:#1769aa;--green:#0f766e;--brown:#6b4b32;--warn:#9a6700}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
-.wrap{max-width:1100px;margin:auto;padding:24px 16px 50px}h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}
-.lead{margin:0 0 22px;color:var(--muted);line-height:1.6}.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #0000000a}
-.panel{padding:18px}.searchrow{display:flex;gap:10px;flex-wrap:wrap}.searchrow input{flex:1;min-width:230px}
-input,select{border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;background:#fff}
-input:focus{outline:2px solid #1769aa22;border-color:var(--blue)}button,.btn{border:0;border-radius:9px;padding:10px 14px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef3;color:var(--ink)}button:disabled{opacity:.55;cursor:not-allowed}
-.status{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.5}.warn{color:var(--warn)}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.resultlist{margin-top:20px}.card{padding:15px;margin:10px 0}
-.card h2{font-size:19px;margin:0 0 8px}.meta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}
-.coords{direction:ltr;unicode-bidi:embed;font-family:Consolas,monospace;background:#f5f7f9;padding:5px 8px;border-radius:7px}
-.desc{line-height:1.5;color:#45515d;margin:10px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}.amud{background:#f3eee8;color:var(--brown)}.google{background:#eef4ff;color:#174ea6}.mapeak{background:#e8f7f4;color:var(--green)}.copy{background:#f1f3f5;color:#384250}
-.empty{border:1px dashed var(--line);border-radius:13px;padding:18px;color:var(--muted);margin-top:18px}.small{font-size:12px;color:var(--muted)}
-code{direction:ltr;unicode-bidi:embed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}.wrap{max-width:1180px;margin:auto;padding:24px 16px 50px}h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}.lead{margin:0 0 22px;color:var(--muted);line-height:1.6}.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #0000000a}.panel{padding:18px}.searchrow{display:flex;gap:10px;flex-wrap:wrap}.searchrow input{flex:1;min-width:230px}input{border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;background:#fff}input:focus{outline:2px solid #1769aa22;border-color:var(--blue)}button,.btn{border:0;border-radius:9px;padding:10px 14px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef3;color:var(--ink)}button:disabled{opacity:.55;cursor:not-allowed}.status{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.5}.warn{color:var(--warn)}#map{height:480px;margin-top:18px;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:none}.resultlist{margin-top:20px}.card{padding:15px;margin:10px 0}.card h2{font-size:19px;margin:0 0 8px}.meta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}.coords{direction:ltr;unicode-bidi:embed;font-family:Consolas,monospace;background:#f5f7f9;padding:5px 8px;border-radius:7px}.badge{padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.high{background:#e8f7f0;color:#176b4a}.medium{background:#fff6db;color:#8a6500}.low{background:#fdecec;color:#a13030}.desc{line-height:1.5;color:#45515d;margin:10px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}.amud{background:#f3eee8;color:var(--brown)}.google{background:#eef4ff;color:#174ea6}.mapeak{background:#e8f7f4;color:var(--green)}.copy{background:#f1f3f5;color:#384250}.empty{border:1px dashed var(--line);border-radius:13px;padding:18px;color:var(--muted);margin-top:18px}.leaflet-popup-content{direction:rtl;text-align:right}.leaflet-popup-content a{display:inline-block;margin:4px 4px 0 0}
 </style>
 </head>
 <body>
 <main class="wrap">
 <h1>חיפוש אתרים בעמוד ענן</h1>
-<p class="lead">חיפוש ישיר במאגר עמוד ענן. התוצאות כוללות קואורדינטות וקישורים לפתיחה בעמוד ענן, Google Maps ו‑MAPEAK.</p>
-
+<p class="lead">חיפוש בעזרת OpenAI Web Search עם העדפה לתוצאות מעמוד ענן. התוצאות מוצגות גם על מפה אינטראקטיבית.</p>
 <section class="panel">
   <div class="searchrow">
     <input id="q" type="search" placeholder="לדוגמה: תת קרקעי" autocomplete="off">
-    <select id="limit" title="מספר תוצאות">
-      <option value="5">5 תוצאות</option>
-      <option value="10" selected>10 תוצאות</option>
-      <option value="20">20 תוצאות</option>
-      <option value="30">30 תוצאות</option>
-    </select>
     <button id="search" class="primary">חפש</button>
     <button id="clear" class="secondary">נקה</button>
   </div>
-
-  <div class="toolbar">
-    <a id="googleSearch" class="btn google" target="_blank" rel="noopener">חיפוש Google בעמוד ענן</a>
-    <a id="amudSearch" class="btn amud" target="_blank" rel="noopener">חיפוש באתר עמוד ענן</a>
-  </div>
   <div id="status" class="status"></div>
 </section>
-
+<div id="map"></div>
 <section id="results" class="resultlist"></section>
 </main>
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-const API='https://amudanan.co.il/w/api.php';
+const API='https://historical-tools-api.tomer-patron.workers.dev/search';
 const $=s=>document.querySelector(s);
-const qEl=$('#q'), results=$('#results'), status=$('#status'), searchBtn=$('#search');
+const qEl=$('#q'), results=$('#results'), status=$('#status'), searchBtn=$('#search'), mapEl=$('#map');
+let map=null, markers=[];
 
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function strip(html=''){
-  const d=new DOMParser().parseFromString(html,'text/html');
-  return (d.body?.textContent||'').replace(/\s+/g,' ').trim();
-}
-function updateLinks(){
-  const q=qEl.value.trim();
-  $('#googleSearch').href='https://www.google.com/search?q='+encodeURIComponent('site:amudanan.co.il '+q);
-  $('#amudSearch').href='https://amudanan.co.il/#search='+encodeURIComponent(q);
-}
-qEl.addEventListener('input',updateLinks); updateLinks();
+function mapLinks(lat,lon){return {google:`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,mapeak:`https://mapeak.com/map/17/${lat}/${lon}`};}
+function badge(conf){const c=['high','medium','low'].includes(conf)?conf:'low';return `<span class="badge ${c}">${esc(conf||'unknown')}</span>`;}
 
-async function api(params){
-  const u=new URL(API);
-  Object.entries({...params,format:'json',origin:'*'}).forEach(([k,v])=>u.searchParams.set(k,v));
-  const r=await fetch(u,{mode:'cors',cache:'no-store'});
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  return await r.json();
+function ensureMap(){
+  if(map) return;
+  mapEl.style.display='block';
+  map=L.map('map').setView([31.8,35.0],8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
 }
-
-function extractCoordsFromText(text){
-  const nums=[...String(text).matchAll(/-?\d{1,3}\.\d{5,}/g)].map(m=>Number(m[0]));
-  for(let i=0;i<nums.length-1;i++){
-    const a=nums[i],b=nums[i+1];
-    if(a>=33 && a<=37 && b>=28 && b<=34.8) return {lon:a,lat:b};
-    if(b>=33 && b<=37 && a>=28 && a<=34.8) return {lon:b,lat:a};
-  }
-  return null;
+function clearMap(){if(map){markers.forEach(m=>m.remove());markers=[];}mapEl.style.display='none';}
+function addMarkers(items){
+  ensureMap();
+  const bounds=[];
+  items.forEach((x,i)=>{
+    const lat=Number(x.latitude),lon=Number(x.longitude); if(!Number.isFinite(lat)||!Number.isFinite(lon)) return;
+    const l=mapLinks(lat,lon);
+    const popup=`<strong>${esc(x.name)}</strong><br>${esc(x.description||'')}<br><span dir="ltr">${lat.toFixed(6)}, ${lon.toFixed(6)}</span><br><a target="_blank" href="${esc(x.source||'#')}">עמוד ענן</a> · <a target="_blank" href="${l.google}">Google Maps</a> · <a target="_blank" href="${l.mapeak}">MAPEAK</a>`;
+    const m=L.marker([lat,lon]).addTo(map).bindPopup(popup); markers.push(m); bounds.push([lat,lon]);
+  });
+  if(bounds.length===1) map.setView(bounds[0],14); else if(bounds.length>1) map.fitBounds(bounds,{padding:[30,30]});
 }
-
-async function getPoint(pageTitle){
-  const data=await api({action:'parse',page:pageTitle,prop:'text|displaytitle'});
-  const p=data.parse||{};
-  const html=p.text?.['*']||'';
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  const text=doc.body?.innerText||strip(html);
-  const coords=extractCoordsFromText(text);
-  const display=strip(p.displaytitle||pageTitle).replace(/\s*-\s*עמוד ענן\s*$/,'') || pageTitle;
-
-  let summary='';
-  const heads=[...doc.querySelectorAll('h2,h3')];
-  const h=heads.find(x=>/תקציר/.test(x.textContent));
-  if(h){
-    let n=h.nextElementSibling, parts=[];
-    while(n && !/^H[23]$/.test(n.tagName) && parts.join(' ').length<300){
-      const t=(n.textContent||'').trim(); if(t) parts.push(t);
-      n=n.nextElementSibling;
-    }
-    summary=parts.join(' ').replace(/\s+/g,' ').slice(0,300);
-  }
-  return {pageTitle,display,coords,summary};
+function renderItem(x){
+  const lat=Number(x.latitude),lon=Number(x.longitude),l=mapLinks(lat,lon);
+  return `<article class="card"><h2>${esc(x.name)}</h2><div class="meta"><span class="coords">${lat.toFixed(7)}, ${lon.toFixed(7)}</span>${badge(x.confidence)}</div><div class="desc">${esc(x.description||'')}</div><div class="actions"><a class="btn amud" href="${esc(x.source||'#')}" target="_blank" rel="noopener">עמוד ענן</a><a class="btn google" href="${l.google}" target="_blank" rel="noopener">Google Maps</a><a class="btn mapeak" href="${l.mapeak}" target="_blank" rel="noopener">MAPEAK</a><button class="btn copy" data-copy="${lat.toFixed(7)},${lon.toFixed(7)}">העתק נ״צ</button></div></article>`;
 }
-
-function mapLinks(c){
-  const lat=c.lat.toFixed(7),lon=c.lon.toFixed(7);
-  return {
-    google:`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,
-    mapeak:`https://mapeak.com/map/17/${lat}/${lon}`
-  };
-}
-
-function renderItem(x,snippet){
-  const amud='https://amudanan.co.il/w/'+encodeURIComponent(x.pageTitle);
-  const c=x.coords,l=c?mapLinks(c):null;
-  return `<article class="card">
-    <h2>${esc(x.display)}</h2>
-    <div class="meta">
-      <span>${esc(x.pageTitle)}</span>
-      ${c?`<span class="coords">${c.lat.toFixed(7)}, ${c.lon.toFixed(7)}</span>`:'<span>נ״צ לא זוהה</span>'}
-    </div>
-    ${(x.summary||snippet)?`<div class="desc">${esc(x.summary||strip(snippet))}</div>`:''}
-    <div class="actions">
-      <a class="btn amud" href="${amud}" target="_blank" rel="noopener">עמוד ענן</a>
-      ${l?`<a class="btn google" href="${l.google}" target="_blank" rel="noopener">Google Maps</a>
-            <a class="btn mapeak" href="${l.mapeak}" target="_blank" rel="noopener">MAPEAK</a>
-            <button class="btn copy" data-copy="${c.lat.toFixed(7)},${c.lon.toFixed(7)}">העתק נ״צ</button>`:''}
-    </div>
-  </article>`;
-}
-
-async function search(){
-  const q=qEl.value.trim(); if(!q){status.textContent='יש להזין מחרוזת לחיפוש.';return}
-  const limit=Number($('#limit').value);
-  searchBtn.disabled=true; results.innerHTML=''; status.className='status'; status.textContent='מחפש בעמוד ענן…';
-  updateLinks();
+async function runSearch(){
+  const q=qEl.value.trim(); if(!q){status.textContent='יש להזין מחרוזת לחיפוש.';return;}
+  searchBtn.disabled=true; results.innerHTML=''; clearMap(); status.className='status'; status.textContent='מחפש ומאתר קואורדינטות…';
   try{
-    const data=await api({action:'query',list:'search',srsearch:q,srlimit:limit,srnamespace:'0'});
-    const hits=data.query?.search||[];
-    const points=hits.filter(h=>/^P\d+$/i.test(h.title));
-    if(!points.length){
-      results.innerHTML=`<div class="empty">לא נמצאו דפי נקודות עניין בחיפוש הישיר. אפשר לנסות את חיפוש Google למעלה.</div>`;
-      status.textContent='החיפוש הסתיים ללא נקודות עניין.';
-      return;
-    }
-
-    let done=0; const all=[];
-    for(let i=0;i<points.length;i+=4){
-      const batch=points.slice(i,i+4);
-      const got=await Promise.all(batch.map(async h=>{
-        try{return {...await getPoint(h.title),snippet:h.snippet||''}}
-        catch(e){return {pageTitle:h.title,display:h.title,coords:null,summary:'',snippet:h.snippet||'',error:String(e)}}
-      }));
-      all.push(...got); done+=got.length;
-      status.textContent=`טוען פרטים וקואורדינטות… ${done}/${points.length}`;
-    }
-    results.innerHTML=all.map(x=>renderItem(x,x.snippet)).join('');
-    status.textContent=`נמצאו ${all.length} תוצאות.`;
-  }catch(e){
-    status.className='status warn';
-    status.textContent='החיפוש הישיר דרך API של עמוד ענן אינו זמין מהדפדפן הזה. השתמש בכפתור חיפוש Google; אין שימוש בשרת proxy ציבורי.';
-    results.innerHTML=`<div class="empty">
-      לא ניתן לקרוא כרגע את עמוד ענן ישירות מתוך הדפדפן.
-      <div class="actions" style="margin-top:10px">
-        <a class="btn google" target="_blank" rel="noopener" href="${$('#googleSearch').href}">חפש ב‑Google</a>
-        <a class="btn amud" target="_blank" rel="noopener" href="${$('#amudSearch').href}">חפש בעמוד ענן</a>
-      </div>
-    </div>`;
-  }finally{searchBtn.disabled=false}
+    const r=await fetch(API+'?q='+encodeURIComponent(q),{cache:'no-store'}); const data=await r.json();
+    if(!r.ok) throw new Error(data?.error||'HTTP '+r.status);
+    const items=Array.isArray(data.results)?data.results:[];
+    const valid=items.filter(x=>Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude)));
+    if(!valid.length){results.innerHTML='<div class="empty">לא נמצאו תוצאות עם קואורדינטות מאומתות.</div>';status.textContent='החיפוש הסתיים ללא תוצאות.';return;}
+    results.innerHTML=valid.map(renderItem).join(''); addMarkers(valid); status.textContent=`נמצאו ${valid.length} תוצאות.`;
+  }catch(e){status.className='status warn';status.textContent='שגיאה בחיפוש: '+e.message;results.innerHTML='<div class="empty">לא ניתן להשלים את החיפוש כרגע.</div>';}
+  finally{searchBtn.disabled=false;}
 }
-
-document.addEventListener('click',async e=>{
-  const b=e.target.closest('[data-copy]'); if(!b)return;
-  try{await navigator.clipboard.writeText(b.dataset.copy);const t=b.textContent;b.textContent='הועתק';setTimeout(()=>b.textContent=t,1000)}catch(_){}
-});
-$('#search').addEventListener('click',search);
-qEl.addEventListener('keydown',e=>{if(e.key==='Enter')search()});
-$('#clear').addEventListener('click',()=>{qEl.value='';results.innerHTML='';status.textContent='';updateLinks();qEl.focus()});
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;try{await navigator.clipboard.writeText(b.dataset.copy);const t=b.textContent;b.textContent='הועתק';setTimeout(()=>b.textContent=t,1000)}catch(_){}});
+$('#search').addEventListener('click',runSearch);qEl.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});$('#clear').addEventListener('click',()=>{qEl.value='';results.innerHTML='';status.textContent='';clearMap();qEl.focus();});
 </script>
 </body>
 </html>
