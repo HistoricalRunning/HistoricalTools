@@ -96,7 +96,15 @@ function addMarkers(items){
     const popup=`<strong>${esc(x.name)}</strong><br>${esc(x.description||'')}<br><span dir="ltr">${lat.toFixed(6)}, ${lon.toFixed(6)}</span><br><a target="_blank" rel="noopener" href="${esc(x.source||'#')}">עמוד ענן</a> · <a target="_blank" rel="noopener" href="${l.google}">Google Maps</a> · <a target="_blank" rel="noopener" href="${l.mapeak}">MAPEAK</a>`;
     const m=L.marker([lat,lon]).addTo(map).bindPopup(popup); markers.push(m); bounds.push([lat,lon]);
   });
-  if(bounds.length===1) map.setView(bounds[0],14); else if(bounds.length>1) map.fitBounds(bounds,{padding:[30,30]});
+  if(bounds.length===1){
+    map.setView(bounds[0],13);
+  }else if(bounds.length>1){
+    map.fitBounds(bounds,{padding:[60,60]});
+    setTimeout(()=>{
+      map.invalidateSize();
+      if(map.getZoom()>5) map.zoomOut(1);
+    },120);
+  }
   setTimeout(()=>map.invalidateSize(),0);
 }
 function renderItem(x){
