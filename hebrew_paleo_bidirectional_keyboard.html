@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>עברית ↔ כתב עברי קדום</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f1e8;color:#2b241c;margin:0}
+main{max-width:1050px;margin:auto;padding:24px}
+h1,h2{color:#7a4f2b}
+.card{background:#fffdf7;border:1px solid #d8c9b5;border-radius:16px;padding:18px;margin:16px 0;box-shadow:0 8px 24px #0000000d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+textarea{width:100%;min-height:160px;padding:12px;border:1px solid #d8c9b5;border-radius:10px;box-sizing:border-box;font-size:21px;line-height:1.6}
+.paleo{font-family:"Segoe UI Historic","Noto Sans Phoenician","Noto Sans",serif;font-size:38px;direction:rtl}
+.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{border:0;border-radius:9px;padding:10px 14px;background:#7a4f2b;color:#fff;cursor:pointer}
+button.alt{background:#6f6255} button.light{background:#e8ddce;color:#2b241c}
+.keyboard{display:grid;grid-template-columns:repeat(11,minmax(55px,1fr));gap:8px}
+@media(max-width:900px){.keyboard{grid-template-columns:repeat(6,minmax(55px,1fr))}}
+@media(max-width:480px){.keyboard{grid-template-columns:repeat(4,minmax(55px,1fr))}}
+.key{background:#efe4d5;color:#2b241c;border:1px solid #d8c9b5;min-height:68px;padding:6px}
+.key .a{display:block;font-family:"Segoe UI Historic","Noto Sans Phoenician","Noto Sans",serif;font-size:30px}
+.key .m{display:block;font-size:13px;color:#6f6255;margin-top:3px}
+small,.note{color:#6f6255;line-height:1.5}.status{color:#2c6e49;min-height:20px;margin-top:8px}
+table{width:100%;border-collapse:collapse;text-align:center}th,td{padding:8px;border-bottom:1px solid #d8c9b5}
+td.p{font-family:"Segoe UI Historic","Noto Sans Phoenician","Noto Sans",serif;font-size:28px}
+</style>
+</head>
+<body>
+<main>
+<h1>עברית ↔ כתב עברי קדום</h1>
+<p>ממיר דו־כיווני עם מקלדת וירטואלית. ניתן להקליד בעברית, או לכתוב ישירות בכתב הקדום ולקבל תעתיק חזרה לעברית.</p>
+
+<section class="card">
+<h2>המרה דו־כיוונית</h2>
+<div class="grid">
+<div>
+<label><b>עברית מודרנית</b></label>
+<textarea id="modern" dir="rtl" placeholder="לדוגמה: שלום עולם"></textarea>
+<div class="buttons">
+<button id="toPaleo">המר לכתב קדום</button>
+<button class="alt" id="copyModern">העתק עברית</button>
+<button class="light" id="clearModern">נקה</button>
+</div>
+</div>
+<div>
+<label><b>כתב עברי קדום</b></label>
+<textarea id="paleo" class="paleo" placeholder="𐤔𐤋𐤅𐤌 𐤏𐤅𐤋𐤌"></textarea>
+<div class="buttons">
+<button id="toModern">תרגם לעברית</button>
+<button class="alt" id="copyPaleo">העתק כתב קדום</button>
+<button class="light" id="clearPaleo">נקה</button>
+</div>
+</div>
+</div>
+<div class="status" id="status"></div>
+</section>
+
+<section class="card">
+<h2>מקלדת וירטואלית — כתב קדום</h2>
+<small>לחיצה על אות מכניסה אותה במקום הסמן בשדה הכתב הקדום ומעדכנת מיד את העברית.</small>
+<div class="keyboard" id="keyboard"></div>
+<div class="buttons">
+<button data-special="space">רווח</button>
+<button data-special="comma">,</button>
+<button data-special="period">.</button>
+<button data-special="dash">־</button>
+<button data-special="back">⌫ מחק</button>
+<button data-special="clear">נקה הכל</button>
+</div>
+</section>
+
+<section class="card">
+<h2>טבלת אותיות</h2>
+<table><thead><tr><th>עברית</th><th>כתב קדום</th><th>שם</th></tr></thead><tbody id="tbl"></tbody></table>
+</section>
+
+<section class="card note">
+Unicode אינו כולל בלוק נפרד בשם Paleo-Hebrew, ולכן נעשה שימוש בתווי Phoenician Unicode, שהם הייצוג הדיגיטלי הזמין והקרוב לכתב העברי הקדום. בתרגום הפוך מוחזרת צורת האות הרגילה בלבד; למשל 𐤌 מוחזר כ־מ ולא ניתן לדעת אם במקור הייתה ם סופית.
+</section>
+</main>
+
+<script>
+const m2p={'א':'𐤀','ב':'𐤁','ג':'𐤂','ד':'𐤃','ה':'𐤄','ו':'𐤅','ז':'𐤆','ח':'𐤇','ט':'𐤈','י':'𐤉','כ':'𐤊','ך':'𐤊','ל':'𐤋','מ':'𐤌','ם':'𐤌','נ':'𐤍','ן':'𐤍','ס':'𐤎','ע':'𐤏','פ':'𐤐','ף':'𐤐','צ':'𐤑','ץ':'𐤑','ק':'𐤒','ר':'𐤓','ש':'𐤔','ת':'𐤕'};
+const p2m={'𐤀':'א','𐤁':'ב','𐤂':'ג','𐤃':'ד','𐤄':'ה','𐤅':'ו','𐤆':'ז','𐤇':'ח','𐤈':'ט','𐤉':'י','𐤊':'כ','𐤋':'ל','𐤌':'מ','𐤍':'נ','𐤎':'ס','𐤏':'ע','𐤐':'פ','𐤑':'צ','𐤒':'ק','𐤓':'ר','𐤔':'ש','𐤕':'ת'};
+const letters=[['א','𐤀','אלף'],['ב','𐤁','בית'],['ג','𐤂','גימל'],['ד','𐤃','דלת'],['ה','𐤄','הא'],['ו','𐤅','וו'],['ז','𐤆','זין'],['ח','𐤇','חת'],['ט','𐤈','טית'],['י','𐤉','יוד'],['כ','𐤊','כף'],['ל','𐤋','למד'],['מ','𐤌','מם'],['נ','𐤍','נון'],['ס','𐤎','סמך'],['ע','𐤏','עין'],['פ','𐤐','פה'],['צ','𐤑','צדי'],['ק','𐤒','קוף'],['ר','𐤓','ריש'],['ש','𐤔','שין'],['ת','𐤕','תו']];
+const modern=document.getElementById('modern'), paleo=document.getElementById('paleo'), status=document.getElementById('status');
+const stripMarks=t=>t.normalize('NFD').replace(/[\u0591-\u05BD\u05BF-\u05C7]/g,'');
+const toPaleoText=t=>Array.from(stripMarks(t)).map(c=>m2p[c]??c).join('');
+const toModernText=t=>Array.from(t).map(c=>p2m[c]??c).join('');
+function syncToPaleo(){paleo.value=toPaleoText(modern.value);status.textContent=''}
+function syncToModern(){modern.value=toModernText(paleo.value);status.textContent=''}
+document.getElementById('toPaleo').onclick=syncToPaleo;
+document.getElementById('toModern').onclick=syncToModern;
+modern.addEventListener('input',syncToPaleo);
+paleo.addEventListener('input',syncToModern);
+async function copyText(text,msg){if(!text)return;try{await navigator.clipboard.writeText(text);status.textContent=msg}catch{status.textContent='העתקה אוטומטית נכשלה; השתמש ב-Ctrl+C.'}}
+document.getElementById('copyModern').onclick=()=>copyText(modern.value,'העברית הועתקה ללוח.');
+document.getElementById('copyPaleo').onclick=()=>copyText(paleo.value,'הכתב הקדום הועתק ללוח.');
+function clearAll(focusEl){modern.value='';paleo.value='';status.textContent='';focusEl.focus()}
+document.getElementById('clearModern').onclick=()=>clearAll(modern);
+document.getElementById('clearPaleo').onclick=()=>clearAll(paleo);
+
+function insertAtCursor(el,text){
+ const s=el.selectionStart??el.value.length,e=el.selectionEnd??el.value.length;
+ el.value=el.value.slice(0,s)+text+el.value.slice(e);
+ const pos=s+text.length;el.focus();el.setSelectionRange(pos,pos);el.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function backspace(el){
+ let s=el.selectionStart??el.value.length,e=el.selectionEnd??el.value.length;
+ if(s!==e){el.value=el.value.slice(0,s)+el.value.slice(e);el.setSelectionRange(s,s)}
+ else if(s>0){const before=Array.from(el.value.slice(0,s));before.pop();const nb=before.join('');el.value=nb+el.value.slice(e);el.setSelectionRange(nb.length,nb.length)}
+ el.focus();el.dispatchEvent(new Event('input',{bubbles:true}));
+}
+const kb=document.getElementById('keyboard');
+letters.forEach(([m,a,n])=>{const b=document.createElement('button');b.className='key';b.type='button';b.title=n+' — '+m;b.innerHTML='<span class="a">'+a+'</span><span class="m">'+m+'</span>';b.onclick=()=>insertAtCursor(paleo,a);kb.appendChild(b)});
+document.querySelectorAll('[data-special]').forEach(b=>b.onclick=()=>{
+ const x=b.dataset.special;
+ if(x==='space')insertAtCursor(paleo,' ');
+ if(x==='comma')insertAtCursor(paleo,',');
+ if(x==='period')insertAtCursor(paleo,'.');
+ if(x==='dash')insertAtCursor(paleo,'־');
+ if(x==='back')backspace(paleo);
+ if(x==='clear')clearAll(paleo);
+});
+document.getElementById('tbl').innerHTML=letters.map(([m,a,n])=>'<tr><td>'+m+'</td><td class="p">'+a+'</td><td>'+n+'</td></tr>').join('');
+modern.value='שלום עולם';syncToPaleo();
+</script>
+</body></html>
