@@ -6,14 +6,15 @@
 <title>חיפוש אתרים בעמוד ענן</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
-:root{--bg:#f5f7f9;--card:#fff;--ink:#17212b;--muted:#667085;--line:#d9e1e8;--blue:#1769aa;--green:#0f766e;--brown:#6b4b32;--warn:#9a6700}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}.wrap{max-width:1180px;margin:auto;padding:24px 16px 50px}h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}.lead{margin:0 0 22px;color:var(--muted);line-height:1.6}.panel,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #0000000a}.panel{padding:18px}.searchrow{display:flex;gap:10px;flex-wrap:wrap}.searchrow input{flex:1;min-width:230px}.passwordrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}.passwordrow input{flex:1;min-width:230px}input{border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;background:#fff}input:focus{outline:2px solid #1769aa22;border-color:var(--blue)}button,.btn{border:0;border-radius:9px;padding:10px 14px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef3;color:var(--ink)}button:disabled{opacity:.55;cursor:not-allowed}.status{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.5}.warn{color:var(--warn)}#map{height:480px;margin-top:18px;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:none}.resultlist{margin-top:20px}.card{padding:15px;margin:10px 0}.card h2{font-size:19px;margin:0 0 8px}.meta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}.coords{direction:ltr;unicode-bidi:embed;font-family:Consolas,monospace;background:#f5f7f9;padding:5px 8px;border-radius:7px}.badge{padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.high{background:#e8f7f0;color:#176b4a}.medium{background:#fff6db;color:#8a6500}.low{background:#fdecec;color:#a13030}.desc{line-height:1.5;color:#45515d;margin:10px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}.amud{background:#f3eee8;color:var(--brown)}.google{background:#eef4ff;color:#174ea6}.mapeak{background:#e8f7f4;color:var(--green)}.copy{background:#f1f3f5;color:#384250}.empty{border:1px dashed var(--line);border-radius:13px;padding:18px;color:var(--muted);margin-top:18px}.leaflet-popup-content{direction:rtl;text-align:right}.leaflet-popup-content a{display:inline-block;margin:4px 4px 0 0}.small{font-size:12px;color:var(--muted)}
+:root{--bg:#f5f7f9;--card:#fff;--ink:#17212b;--muted:#667085;--line:#d9e1e8;--blue:#1769aa;--green:#0f766e;--brown:#6b4b32;--warn:#9a6700;--danger:#a13030}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}.wrap{max-width:1280px;margin:auto;padding:24px 16px 50px}h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px)}.lead{margin:0 0 22px;color:var(--muted);line-height:1.6}.panel,.card,.historyPanel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #0000000a}.panel{padding:18px}.searchrow{display:flex;gap:10px;flex-wrap:wrap}.searchrow input{flex:1;min-width:230px}.passwordrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}.passwordrow input{flex:1;min-width:230px}input{border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;background:#fff}input:focus{outline:2px solid #1769aa22;border-color:var(--blue)}button,.btn{border:0;border-radius:9px;padding:10px 14px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef3;color:var(--ink)}.refresh{background:#fff3cd;color:#7a5b00}.danger{background:#fdecec;color:var(--danger)}button:disabled{opacity:.55;cursor:not-allowed}.status{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.5}.warn{color:var(--warn)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px}.maincol{min-width:0}.historyPanel{padding:14px;height:max-content;position:sticky;top:12px}.historyTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.historyTitle h2{font-size:18px;margin:0}.historyList{display:flex;flex-direction:column;gap:8px}.historyItem{border:1px solid var(--line);border-radius:11px;padding:10px;background:#fafbfc;cursor:pointer}.historyItem:hover{border-color:#aab7c4;background:#fff}.historyItem.active{border-color:var(--blue);background:#eef6ff}.historyQuery{font-weight:700;margin-bottom:5px}.historyMeta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.historyEmpty{font-size:14px;color:var(--muted);padding:8px 2px}.sourceTag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.sourceCache{background:#e8f7f0;color:#176b4a}.sourceAI{background:#eef4ff;color:#174ea6}#map{height:500px;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:none}.resultHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}.resultHeader h2{margin:0;font-size:20px}.resultTools{display:flex;gap:8px;flex-wrap:wrap}.resultlist{margin-top:12px}.card{padding:15px;margin:10px 0}.card h2{font-size:19px;margin:0 0 8px}.meta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}.coords{direction:ltr;unicode-bidi:embed;font-family:Consolas,monospace;background:#f5f7f9;padding:5px 8px;border-radius:7px}.badge{padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}.high{background:#e8f7f0;color:#176b4a}.medium{background:#fff6db;color:#8a6500}.low{background:#fdecec;color:#a13030}.desc{line-height:1.5;color:#45515d;margin:10px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}.amud{background:#f3eee8;color:var(--brown)}.google{background:#eef4ff;color:#174ea6}.mapeak{background:#e8f7f4;color:var(--green)}.copy{background:#f1f3f5;color:#384250}.empty{border:1px dashed var(--line);border-radius:13px;padding:18px;color:var(--muted);margin-top:18px}.leaflet-popup-content{direction:rtl;text-align:right}.leaflet-popup-content a{display:inline-block;margin:4px 4px 0 0}.small{font-size:12px;color:var(--muted)}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.historyPanel{position:static;order:-1}#map{height:420px}}
 </style>
 </head>
 <body>
 <main class="wrap">
 <h1>חיפוש אתרים בעמוד ענן</h1>
-<p class="lead">חיפוש בעזרת OpenAI Web Search עם העדפה לתוצאות מעמוד ענן. התוצאות מוצגות גם על מפה אינטראקטיבית.</p>
+<p class="lead">חיפוש בעזרת OpenAI Web Search עם שמירת תוצאות ב־Cloudflare KV. חיפושים שכבר נשמרו נטענים מחדש ללא קריאת OpenAI.</p>
 <section class="panel">
   <div class="searchrow">
     <input id="q" type="search" placeholder="לדוגמה: תת קרקעי" autocomplete="off">
@@ -23,32 +24,63 @@
   <div class="passwordrow">
     <input id="password" type="password" placeholder="סיסמת גישה" autocomplete="current-password">
     <button id="togglePassword" class="secondary" type="button">הצג סיסמה</button>
+    <button id="loadHistory" class="secondary" type="button">טען היסטוריה</button>
     <span class="small">הסיסמה נשמרת רק ל־session הנוכחי בדפדפן.</span>
   </div>
   <div id="status" class="status"></div>
 </section>
-<div id="map"></div>
-<section id="results" class="resultlist"></section>
+
+<div class="layout">
+  <section class="maincol">
+    <div id="map"></div>
+    <div id="resultHeader" class="resultHeader" style="display:none">
+      <div>
+        <h2 id="resultTitle"></h2>
+        <div id="resultSource" class="small"></div>
+      </div>
+      <div class="resultTools">
+        <button id="refreshSearch" class="refresh" type="button">רענן באמצעות AI</button>
+      </div>
+    </div>
+    <section id="results" class="resultlist"></section>
+  </section>
+
+  <aside class="historyPanel">
+    <div class="historyTitle">
+      <h2>חיפושים שמורים</h2>
+      <button id="reloadHistory" class="secondary" type="button" title="רענן רשימה">↻</button>
+    </div>
+    <div id="historyList" class="historyList">
+      <div class="historyEmpty">הזן סיסמה וטען היסטוריה.</div>
+    </div>
+  </aside>
+</div>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
-const API='https://historical-tools-api.tomer-patron.workers.dev/search';
+const API_BASE='https://historical-tools-api.tomer-patron.workers.dev';
 const $=s=>document.querySelector(s);
 const qEl=$('#q'), passwordEl=$('#password'), results=$('#results'), status=$('#status'), searchBtn=$('#search'), mapEl=$('#map');
-let map=null, markers=[];
+const historyList=$('#historyList'), resultHeader=$('#resultHeader'), resultTitle=$('#resultTitle'), resultSource=$('#resultSource');
+let map=null, markers=[], activeQuery='';
 
 passwordEl.value=sessionStorage.getItem('historicalToolsPassword')||'';
 
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function mapLinks(lat,lon){return {google:`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,mapeak:`https://mapeak.com/map/17/${lat}/${lon}`};}
 function badge(conf){const c=['high','medium','low'].includes(conf)?conf:'low';return `<span class="badge ${c}">${esc(conf||'unknown')}</span>`;}
+function authHeaders(){return {'X-API-Password':passwordEl.value};}
+function requirePassword(){
+  const p=passwordEl.value;
+  if(!p){status.className='status warn';status.textContent='יש להזין סיסמת גישה.';passwordEl.focus();return false;}
+  sessionStorage.setItem('historicalToolsPassword',p);
+  return true;
+}
+function handleUnauthorized(){sessionStorage.removeItem('historicalToolsPassword');passwordEl.value='';status.className='status warn';status.textContent='סיסמת הגישה שגויה.';passwordEl.focus();}
 
 function ensureMap(){
   mapEl.style.display='block';
-  if(map){
-    setTimeout(()=>map.invalidateSize(),0);
-    return;
-  }
+  if(map){setTimeout(()=>map.invalidateSize(),0);return;}
   map=L.map('map').setView([31.8,35.0],8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
   setTimeout(()=>map.invalidateSize(),0);
@@ -56,6 +88,7 @@ function ensureMap(){
 function clearMap(){if(map){markers.forEach(m=>m.remove());markers=[];}mapEl.style.display='none';}
 function addMarkers(items){
   ensureMap();
+  markers.forEach(m=>m.remove()); markers=[];
   const bounds=[];
   items.forEach(x=>{
     const lat=Number(x.latitude),lon=Number(x.longitude); if(!Number.isFinite(lat)||!Number.isFinite(lon)) return;
@@ -70,41 +103,75 @@ function renderItem(x){
   const lat=Number(x.latitude),lon=Number(x.longitude),l=mapLinks(lat,lon);
   return `<article class="card"><h2>${esc(x.name)}</h2><div class="meta"><span class="coords">${lat.toFixed(7)}, ${lon.toFixed(7)}</span>${badge(x.confidence)}</div><div class="desc">${esc(x.description||'')}</div><div class="actions"><a class="btn amud" href="${esc(x.source||'#')}" target="_blank" rel="noopener">עמוד ענן</a><a class="btn google" href="${l.google}" target="_blank" rel="noopener">Google Maps</a><a class="btn mapeak" href="${l.mapeak}" target="_blank" rel="noopener">MAPEAK</a><button class="btn copy" data-copy="${lat.toFixed(7)},${lon.toFixed(7)}">העתק נ״צ</button></div></article>`;
 }
-async function runSearch(){
-  const q=qEl.value.trim();
-  const password=passwordEl.value;
-  if(!q){status.textContent='יש להזין מחרוזת לחיפוש.';return;}
-  if(!password){status.className='status warn';status.textContent='יש להזין סיסמת גישה.';passwordEl.focus();return;}
-
-  sessionStorage.setItem('historicalToolsPassword',password);
-  searchBtn.disabled=true; results.innerHTML=''; clearMap(); status.className='status'; status.textContent='מחפש ומאתר קואורדינטות…';
-  try{
-    const r=await fetch(API+'?q='+encodeURIComponent(q),{
-      cache:'no-store',
-      headers:{'X-API-Password':password}
-    });
-    let data={};
-    try{data=await r.json();}catch(_){ }
-    if(r.status===401){
-      sessionStorage.removeItem('historicalToolsPassword');
-      passwordEl.value='';
-      throw new Error('סיסמת הגישה שגויה.');
-    }
-    if(!r.ok) throw new Error(data?.error||'HTTP '+r.status);
-    const items=Array.isArray(data.results)?data.results:[];
-    const valid=items.filter(x=>Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude)));
-    if(!valid.length){results.innerHTML='<div class="empty">לא נמצאו תוצאות עם קואורדינטות מאומתות.</div>';status.textContent='החיפוש הסתיים ללא תוצאות.';return;}
-    results.innerHTML=valid.map(renderItem).join(''); addMarkers(valid); status.textContent=`נמצאו ${valid.length} תוצאות.`;
-  }catch(e){status.className='status warn';status.textContent='שגיאה בחיפוש: '+e.message;results.innerHTML='<div class="empty">לא ניתן להשלים את החיפוש כרגע.</div>';}
-  finally{searchBtn.disabled=false;}
+function formatDate(value){
+  if(!value)return '';
+  const d=new Date(value); if(Number.isNaN(d.getTime()))return '';
+  return d.toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'});
+}
+function setActiveHistory(){
+  document.querySelectorAll('.historyItem').forEach(el=>el.classList.toggle('active',el.dataset.query===activeQuery));
+}
+function renderHistory(searches){
+  if(!Array.isArray(searches)||!searches.length){historyList.innerHTML='<div class="historyEmpty">עדיין אין חיפושים שמורים.</div>';return;}
+  historyList.innerHTML=searches.map(s=>`<div class="historyItem" data-query="${esc(s.query||'')}"><div class="historyQuery">${esc(s.query||'ללא שם')}</div><div class="historyMeta"><span>${Number(s.result_count||0)} תוצאות</span><span>${esc(formatDate(s.updated_at))}</span></div></div>`).join('');
+  setActiveHistory();
 }
 
-document.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;try{await navigator.clipboard.writeText(b.dataset.copy);const t=b.textContent;b.textContent='הועתק';setTimeout(()=>b.textContent=t,1000)}catch(_){}});
-$('#search').addEventListener('click',runSearch);
-qEl.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});
-passwordEl.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});
+async function loadHistory(){
+  if(!requirePassword())return;
+  historyList.innerHTML='<div class="historyEmpty">טוען היסטוריה…</div>';
+  try{
+    const r=await fetch(API_BASE+'/history',{cache:'no-store',headers:authHeaders()});
+    const data=await r.json().catch(()=>({}));
+    if(r.status===401){handleUnauthorized();historyList.innerHTML='<div class="historyEmpty">יש להזין סיסמה תקינה.</div>';return;}
+    if(!r.ok)throw new Error(data?.error||'HTTP '+r.status);
+    renderHistory(data.searches||[]);
+  }catch(e){historyList.innerHTML='<div class="historyEmpty">לא ניתן לטעון היסטוריה.</div>';status.className='status warn';status.textContent='שגיאה בטעינת היסטוריה: '+e.message;}
+}
+
+async function runSearch(refresh=false, queryOverride=null){
+  const q=(queryOverride??qEl.value).trim();
+  if(!q){status.textContent='יש להזין מחרוזת לחיפוש.';return;}
+  if(!requirePassword())return;
+  qEl.value=q; activeQuery=q; setActiveHistory();
+  searchBtn.disabled=true; $('#refreshSearch').disabled=true; results.innerHTML=''; clearMap(); resultHeader.style.display='none'; status.className='status'; status.textContent=refresh?'מרענן באמצעות OpenAI…':'טוען תוצאות…';
+  try{
+    const url=API_BASE+'/search?q='+encodeURIComponent(q)+(refresh?'&refresh=1':'');
+    const r=await fetch(url,{cache:'no-store',headers:authHeaders()});
+    const data=await r.json().catch(()=>({}));
+    if(r.status===401){handleUnauthorized();throw new Error('סיסמת הגישה שגויה.');}
+    if(!r.ok)throw new Error(data?.error||'HTTP '+r.status);
+    const items=Array.isArray(data.results)?data.results:[];
+    const valid=items.filter(x=>Number.isFinite(Number(x.latitude))&&Number.isFinite(Number(x.longitude)));
+    if(!valid.length){results.innerHTML='<div class="empty">לא נמצאו תוצאות עם קואורדינטות מאומתות.</div>';status.textContent='החיפוש הסתיים ללא תוצאות.';await loadHistory();return;}
+    results.innerHTML=valid.map(renderItem).join('');
+    addMarkers(valid);
+    resultHeader.style.display='flex'; resultTitle.textContent=q;
+    const fromCache=data.result_source==='cache';
+    resultSource.innerHTML=fromCache?'<span class="sourceTag sourceCache">נטען מהיסטוריה — ללא שימוש ב־OpenAI</span>':'<span class="sourceTag sourceAI">תוצאה חדשה מ־OpenAI ונשמרה בהיסטוריה</span>';
+    status.textContent=`נמצאו ${valid.length} תוצאות.`;
+    await loadHistory();
+  }catch(e){status.className='status warn';status.textContent='שגיאה בחיפוש: '+e.message;results.innerHTML='<div class="empty">לא ניתן להשלים את החיפוש כרגע.</div>';}
+  finally{searchBtn.disabled=false;$('#refreshSearch').disabled=false;}
+}
+
+document.addEventListener('click',async e=>{
+  const copyBtn=e.target.closest('[data-copy]');
+  if(copyBtn){try{await navigator.clipboard.writeText(copyBtn.dataset.copy);const t=copyBtn.textContent;copyBtn.textContent='הועתק';setTimeout(()=>copyBtn.textContent=t,1000)}catch(_){} return;}
+  const historyItem=e.target.closest('.historyItem');
+  if(historyItem){runSearch(false,historyItem.dataset.query||'');}
+});
+$('#search').addEventListener('click',()=>runSearch(false));
+$('#refreshSearch').addEventListener('click',()=>{if(activeQuery)runSearch(true,activeQuery);});
+$('#loadHistory').addEventListener('click',loadHistory);
+$('#reloadHistory').addEventListener('click',loadHistory);
+qEl.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(false)});
+passwordEl.addEventListener('keydown',e=>{if(e.key==='Enter'){sessionStorage.setItem('historicalToolsPassword',passwordEl.value);loadHistory();}});
+passwordEl.addEventListener('change',()=>{if(passwordEl.value)sessionStorage.setItem('historicalToolsPassword',passwordEl.value);});
 $('#togglePassword').addEventListener('click',()=>{const hidden=passwordEl.type==='password';passwordEl.type=hidden?'text':'password';$('#togglePassword').textContent=hidden?'הסתר סיסמה':'הצג סיסמה';});
-$('#clear').addEventListener('click',()=>{qEl.value='';results.innerHTML='';status.textContent='';clearMap();qEl.focus();});
+$('#clear').addEventListener('click',()=>{qEl.value='';activeQuery='';results.innerHTML='';status.textContent='';clearMap();resultHeader.style.display='none';setActiveHistory();qEl.focus();});
+
+if(passwordEl.value){loadHistory();}
 </script>
 </body>
 </html>
