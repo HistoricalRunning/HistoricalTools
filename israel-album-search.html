@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>חיפוש - ישראל נגלית לעין</title>
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#182230;
+      --muted:#667085;
+      --border:#d0d5dd;
+      --primary:#175cd3;
+      --primary-hover:#004eeb;
+      --shadow:0 8px 24px rgba(16,24,40,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      padding:40px 18px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .header{
+      padding:24px;
+      border-bottom:1px solid var(--border);
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:26px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .searchbar{
+      display:flex;
+      gap:10px;
+      padding:24px;
+      flex-wrap:wrap;
+    }
+    input[type="search"]{
+      flex:1 1 420px;
+      min-width:220px;
+      padding:13px 15px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      font-size:17px;
+      outline:none;
+    }
+    input[type="search"]:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(23,92,211,.12);
+    }
+    button{
+      border:0;
+      border-radius:10px;
+      padding:12px 20px;
+      font-size:16px;
+      cursor:pointer;
+      background:var(--primary);
+      color:white;
+      white-space:nowrap;
+    }
+    button:hover{background:var(--primary-hover)}
+    .note{
+      padding:0 24px 22px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    @media (max-width:650px){
+      .wrap{padding:18px 12px}
+      .header,.searchbar{padding:16px}
+      h1{font-size:22px}
+      button{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="header">
+        <h1>חיפוש ב״ישראל נגלית לעין״</h1>
+        <p class="subtitle">הקלד מחרוזת חיפוש. התוצאות ייפתחו בטאב חדש.</p>
+      </div>
+
+      <form class="searchbar" id="searchForm">
+        <input
+          id="query"
+          type="search"
+          placeholder="לדוגמה: פארק קנדה"
+          autocomplete="off"
+          autofocus
+        >
+        <button type="submit">חפש</button>
+      </form>
+
+      <div class="note">
+        כל חיפוש נפתח בטאב חדש באתר Israel Album.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BASE = 'https://israelalbum.org.il/mysearch/?search=';
+    const form = document.getElementById('searchForm');
+    const query = document.getElementById('query');
+
+    function buildUrl(value) {
+      return BASE + encodeURIComponent(value.trim()).replace(/%20/g, '+');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const q = query.value.trim();
+      if (!q) {
+        query.focus();
+        return;
+      }
+
+      window.open(buildUrl(q), '_blank', 'noopener,noreferrer');
+    });
+  </script>
+</body>
+</html>
