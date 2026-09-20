@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>קסטלום ארנולדי – מדריך היסטורי ומדריך שטח</title>
+<style>
+  :root{
+    --bg:#f4f1ea; --paper:#fffdf8; --ink:#24211d; --muted:#70685f;
+    --accent:#7c3f21; --accent2:#b56d38; --ok:#2f6f4e; --warn:#a33b2b; --line:#ded7ca;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.75}
+  .hero{min-height:52vh;display:flex;align-items:end;padding:56px 7vw 42px;
+    background:
+      linear-gradient(to top,rgba(24,17,12,.88),rgba(24,17,12,.2)),
+      url("https://ic.pics.livejournal.com/levakov/10727013/290623/290623_original.jpg") center/cover;
+    color:white}
+  .hero-inner{max-width:1050px}
+  h1{font-size:clamp(2.2rem,6vw,5.3rem);line-height:1.03;margin:0 0 12px}
+  .subtitle{font-size:clamp(1rem,2vw,1.35rem);max-width:900px}
+  main{max-width:1180px;margin:auto;padding:34px 22px 80px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:24px;margin:20px 0;box-shadow:0 8px 24px rgba(53,43,33,.06)}
+  h2{font-size:1.75rem;margin:0 0 12px;color:var(--accent)}
+  h3{font-size:1.22rem;color:#4c3427;margin-top:22px}
+  a{color:#79401f}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .fact{background:#f7f2e8;border-radius:14px;padding:14px}
+  .fact b{display:block;color:var(--accent);font-size:.92rem}
+  .alert{border-right:6px solid var(--warn);background:#fff1ee}
+  .good{border-right:6px solid var(--ok);background:#eff8f2}
+  .timeline{border-right:3px solid #c7a683;padding-right:20px;margin-right:8px}
+  .timeline p{position:relative;margin:0 0 17px}
+  .timeline p:before{content:"";position:absolute;right:-28px;top:.65em;width:11px;height:11px;border-radius:50%;background:var(--accent2);border:3px solid var(--paper)}
+  .verify{width:100%;border-collapse:collapse;margin-top:10px;font-size:.96rem}
+  .verify th,.verify td{border-bottom:1px solid var(--line);padding:12px;vertical-align:top;text-align:right}
+  .verify th{background:#f2eadf;color:#573924}
+  .status-ok{color:#246443;font-weight:bold}.status-part{color:#9a651c;font-weight:bold}.status-no{color:#a33b2b;font-weight:bold}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  figure{margin:0;background:#f7f3eb;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  figure img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}
+  figcaption{padding:10px 12px;color:#5c554c;font-size:.91rem}
+  .buttons{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-block;text-decoration:none;background:var(--accent);color:white;padding:10px 15px;border-radius:999px;font-weight:bold}
+  .btn.alt{background:#516b58}
+  .btn.gray{background:#5f5b56}
+  iframe{width:100%;height:410px;border:0;border-radius:14px}
+  .sources li{margin-bottom:11px}
+  .small{font-size:.9rem;color:var(--muted)}
+  .quote{border-right:4px solid #c59a6d;padding:8px 18px;background:#faf5ec}
+  footer{color:#777;text-align:center;padding:26px}
+  @media(max-width:680px){.hero{min-height:44vh;padding:34px 22px}.verify{font-size:.86rem}.verify th,.verify td{padding:8px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <h1>קסטלום ארנולדי</h1>
+    <div class="subtitle">המצודה הצלבנית בתל איילון – Chastel Arnoul / Castellum Arnaldi. מדריך היסטורי בעברית, בדיקת הטענות מן הבלוג, זיהוי השרידים בשטח ומקורות להמשך מחקר.</div>
+  </div>
+</header>
+<main>
+<section class="card alert">
+  <h2>חשוב לפני שמתכננים ביקור</h2>
+  <p><b>נכון לעדכון קק"ל מ־13 באוגוסט 2026, פארק איילון–קנדה סגור למטיילים עד הודעה חדשה</b> בעקבות השריפה והמשך עבודות לסילוק מפגעים. האיסור חל על כניסה ברגל, באופניים וברכב. בנוסף, גם בעמוד המסלול הרגיל קק"ל מזהירה במפורש שלא לעלות לתל איילון בגלל בורות ומבנים רעועים.</p>
+  <p>לכן פרק הניווט בדף זה נועד לשימוש כאשר קק"ל תודיע שהפארק נפתח מחדש. יש לבדוק סטטוס עדכני ביום היציאה.</p>
+  <div class="buttons">
+    <a class="btn" target="_blank" rel="noopener" href="https://www.kkl.org.il/recreation-and-tours/messages/">סטטוס עדכני – הודעות קק"ל</a>
+    <a class="btn alt" target="_blank" rel="noopener" href="https://www.kkl.org.il/travel/kkl_p_ayacan/">עמוד פארק איילון–קנדה</a>
+  </div>
+</section>
+<section class="card">
+  <h2>תעודת זהות</h2>
+  <div class="facts">
+    <div class="fact"><b>שם לטיני</b>Castellum Arnaldi</div>
+    <div class="fact"><b>שמות צרפתיים במקורות</b>Chastel Arnoul / Chastel Hernaut</div>
+    <div class="fact"><b>מיקום</b>תל איילון, פארק איילון–קנדה</div>
+    <div class="fact"><b>קואורדינטות שימושיות</b>31.8376, 35.0202</div>
+    <div class="fact"><b>ייעוד</b>מצודת דרך להגנת העלייה מירושלים/אל ירושלים ממערב</div>
+    <div class="fact"><b>תכנית</b>מבצר מתחם מלבני בקירוב, כ־80×40 מ' לפי הסקר</div>
+  </div>
+</section>
+<section class="card">
+  <h2>למה בכלל בנו כאן מבצר?</h2>
+  <p>תל איילון יושב בנקודה אסטרטגית מאוד: בקצה עמק איילון, במקום שבו הדרכים מן השפלה מתקרבות אל המעברים המטפסים להרי יהודה. בראשית הממלכה הצלבנית הייתה הדרך מיפו ורמלה לירושלים עורק חיוני לצליינים, אספקה וצבא, אך היא הייתה חשופה לפשיטות ולמארבים. לכן הוקם כאן מבצר־דרך שנועד לאבטח את המעבר.</p>
+  <p>הארכאולוג אדריאן בואס מתאר את האתר כמבצר מתחם בינוני, מלבני בקירוב. שרדו קטעים מן החומה המערבית, מגדל בולט במרכזה, שרידים מן החומה הדרומית, חללים מקומרים ומדרגות. השער היה בדרום ולצדו אולם מקומר וגרם מדרגות.</p>
+</section>
+<section class="card">
+  <h2>הסיפור ההיסטורי – כרונולוגיה מתוקנת</h2>
+  <div class="timeline">
+    <p><b>ראשית המאה ה־12:</b> לפי המסורת ההיסטורית שמביא בואס, מבצר מוקדם נבנה ביוזמת בלדווין הראשון כדי להגן על האזור ועל הדרך.</p>
+    <p><b>1106:</b> המבצר נהרס בידי כוח פאטימי.</p>
+    <p><b>1132–1133:</b> המבצר הוקם מחדש. ויליאם מצור מייחס את הבנייה לפטריארך ירושלים ולתושבי העיר; המקורות המודרניים מזהים את הפטריארך כוורמונד (Warmund).</p>
+    <p><b>עד 1179:</b> המבצר היה בידי הטמפלרים.</p>
+    <p><b>1187:</b> בעקבות התמוטטות הממלכה הצלבנית לאחר קרב קרני חיטין, המבצר נפל לידי צלאח א־דין.</p>
+    <p><b>1191–1192:</b> במסע הצלב השלישי עבר ריצ'רד לב הארי במרחב לטרון–בית נובא. הבלוג קושר את Chastel Arnoul למסע זה; יש בסיס טוב למיקומו בנתיב ההתקדמות, אך אין לראות בכך עדות שהמצודה שוקמה שוב למבצר פעיל בהיקף הקודם.</p>
+    <p><b>העת החדשה:</b> האתר לא נחפר בחפירה ארכאולוגית מלאה. דניס פרינגל סקר אותו ב־1988, והמחקר המודרני נשען במידה רבה על הסקר האדריכלי ועל המקורות ההיסטוריים.</p>
+  </div>
+</section>
+<section class="card">
+  <h2>בדיקת הטענות שמופיעות בבלוג של Levakov</h2>
+  <p>הפוסט משנת 2009 שימושי מאוד בזכות התיעוד הצילומי של השרידים, אך חלק מן הפרטים ההיסטוריים דורשים תיקון או הסתייגות:</p>
+  <table class="verify">
+    <thead><tr><th>הטענה בבלוג</th><th>בדיקה</th><th>מסקנה</th></tr></thead>
+    <tbody>
+      <tr><td>המצודה נבנתה בחיפזון מאבני תל איילון ונהרסה כעבור שנה.</td><td>המקורות תומכים במבצר מוקדם שנהרס ב־1106, אך אין לי מקור אמין המאשר את הניסוח "נבנה בחיפזון" או שכל חומריו נלקחו ממבנים קדומים בתל.</td><td class="status-part">מאומת חלקית</td></tr>
+      <tr><td>המצודה נבנתה בשנת 1105.</td><td>המחקר המודרני מציין שהייתה מצודה מוקדמת של בלדווין הראשון שנהרסה ב־1106; התאריך המדויק 1105 אינו מבוסס היטב במקורות שבדקתי.</td><td class="status-part">דורש הסתייגות</td></tr>
+      <tr><td>היא נבנתה מחדש לאחר החורבן הראשון.</td><td>מאומת: הבנייה המחודשת מתוארכת ל־1132–1133.</td><td class="status-ok">מאומת</td></tr>
+      <tr><td>ייתכן שהשם קשור לברון ארנולף מאודנארדה שנהרג ב־1102.</td><td>הבלוג עצמו מציג זאת כהשערה. לא מצאתי במחקר המרכזי שבדקתי ייחוס מקובל של שם המצודה דווקא אליו.</td><td class="status-no">השערה לא מבוססת</td></tr>
+      <tr><td>המקום נמצא בין לטרון/טורון דה־שבלייה לבית נובא.</td><td>תואם היטב את הטופוגרפיה ואת התיאורים המחקריים: האתר נמצא מצפון לעמק איילון, סמוך לדרך העולה להרי יהודה וכקילומטר מדרום־מערב לבית נובא.</td><td class="status-ok">מאומת</td></tr>
+      <tr><td>ריצ'רד לב הארי הגיע למרחב במהלך מסע 1191.</td><td>ריצ'רד אכן התקדם מאזור יפו דרך לוד/רמלה ולטרון לעבר בית נובא. הקישור ל־Chastel Arnoul סביר ומופיע גם בספרות ההיסטורית, אך יש להיזהר מן הרושם שהאתר היה אז בהכרח מצודה גדולה ומתפקדת.</td><td class="status-ok">בעיקר מאומת</td></tr>
+      <tr><td>מערכות הבארות ובית הקשתות באזור הן מן התקופה הרומית.</td><td>קק"ל מתארת את בית הקשתות כמבנה מן המאה ה־3 לספירה ואת מערכת המים סביבו כמערכת קדומה שנועדה לאגירה והובלה.</td><td class="status-ok">מאומת באופן כללי</td></tr>
+    </tbody>
+  </table>
+</section>
+<section class="card">
+  <h2>מה שרד מן המבצר?</h2>
+  <p>השרידים אינם "טירה" שלמה במובן שמטייל מצפה לראות במונפור או בכוכב הירדן. זהו אתר ארכאולוגי נמוך והרוס, שהקריאה שלו בשטח דורשת תשומת לב. לפי הסקר של פרינגל ובואס, התכנית הייתה של מתחם מלבני בקירוב: החומה המערבית נמשכה לכ־80 מטר, ובמרכזה מגדל שבולט כ־4 מטרים מקו החומה. בדרום השתמרו קמרונות, מדרגות ושרידי שער, והקיר המזרחי/דרום־מזרחי השלים מתחם ברוחב של כ־40 מטר.</p>
+  <div class="quote">הפרט הכי מעניין בתצלומי הבלוג הוא גרם המדרגות הבנוי בתוך עובי החומה, יחד עם חריצים ומגרעות שניתן לפרש כמנגנון דלת או קורת נעילה.</div>
+</section>
+<section class="card">
+  <h2>גלריית השרידים – מתוך הבלוג</h2>
+  <p class="small">התצלומים להלן נטענים מאתר LiveJournal המקורי של Levakov. הקרדיט לצלם/מחבר הפוסט. התיאורים בעברית מבוססים על כיתובי הפוסט.</p>
+  <div class="gallery">
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/290623/290623_original.jpg" alt="קטע מחומת קסטלום ארנולדי"><figcaption>1. קטע נראה מן החומה החיצונית.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/290910/290910_original.jpg" alt="שריד ביצורי המצודה"><figcaption>2. מקטע של הביצור.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/291130/291130_original.jpg" alt="אבני קמרון הרוסות"><figcaption>3. אבני קמרון ומפולת בנייה.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/291576/291576_original.jpg" alt="פתח אל חללים פנימיים"><figcaption>4. פרצה/פתח אל החללים הפנימיים שנותרו.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/291636/291636_original.jpg" alt="חלל פנימי במצודה"><figcaption>5. שרידי חלל פנימי.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/292254/292254_original.jpg" alt="מעבר סמוך לכניסה"><figcaption>7. מעבר/מבוי סמוך לפתח.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/292555/292555_original.jpg" alt="גרם מדרגות בתוך החומה"><figcaption>8. גרם המדרגות בתוך עובי החומה – אחד הפרטים האדריכליים המעניינים באתר.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/292655/292655_original.jpg" alt="מדרגות חסומות"><figcaption>9. המשך המדרגות אל אזור חסום/סתום.</figcaption></figure>
+    <figure><img loading="lazy" src="https://ic.pics.livejournal.com/levakov/10727013/293046/293046_original.jpg" alt="פרטי סף ומנגנון נעילה"><figcaption>10. פרטי בנייה ליד הפנייה במדרגות; הבלוג מזהה מגרעות של דלת וקורת נעילה.</figcaption></figure>
+  </div>
+</section>
+<section class="card">
+  <h2>כיצד להגיע – לאחר פתיחת הפארק מחדש</h2>
+  <p>נקודת הייחוס למבצר היא <b>תל איילון</b>, בצפון־מזרח פארק איילון–קנדה. קק"ל מתארת גישה דרך דרכי הפארק ומציינת את עין איילון ובית הקשתות כאתרים סמוכים. מאחר שהשרידים עצמם נמצאים על תל מסוכן, אין להסתמך על צילום או נקודת GPS בלבד; יש לפעול לפי שילוט קק"ל והנחיות הבטיחות שיהיו בתוקף לאחר הפתיחה.</p>
+  <div class="buttons">
+    <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=31.8376,35.0202">Google Maps</a>
+    <a class="btn alt" target="_blank" rel="noopener" href="https://www.waze.com/ul?ll=31.8376%2C35.0202&navigate=yes">Waze</a>
+    <a class="btn gray" target="_blank" rel="noopener" href="https://mapeak.com/poi/Coordinates/31.8376_35.0202">MAPeak</a>
+    <a class="btn gray" target="_blank" rel="noopener" href="https://www.kkl.org.il/files/Travel_And_Leisure/KKL_AyalonCanada_2022.pdf">מפת קק"ל של הפארק</a>
+  </div>
+  <p class="small">הקואורדינטה היא נקודת ייחוס לאתר מן האטלס הצלבני המקוון, ולא הבטחה לנקודת כניסה בטוחה. בעת ביקור חוקי יש להעדיף שביל מסומן והנחיות בשטח.</p>
+</section>
+<section class="card">
+  <h2>אתרים שכדאי לחבר לאותו סיור</h2>
+  <h3>בית הקשתות</h3>
+  <p>מבנה מים רומי מרשים מן המאה ה־3 לספירה, בעל קשתות הנושאות לוחות אבן כבדים. בתקופה הביזנטית שימש מאגר מים. קק"ל מזהירה שאין להיכנס למבנה בשל סכנת התמוטטות.</p>
+  <h3>עין איילון</h3>
+  <p>בית מעיין סמוך מדרום לתל. המים נאספו בעבר בבריכה רבועה במורד.</p>
+  <h3>אמאוס–ניקופוליס ולטרון</h3>
+  <p>המרחב משלים את תמונת הדרך לירושלים בתקופה הרומית, הביזנטית והצלבנית. מדרום־מערב נמצאת לטרון, שבה התקיים המבצר הצלבני Toron des Chevaliers.</p>
+</section>
+<section class="card">
+  <h2>מקורות וקישורים</h2>
+  <ol class="sources">
+    <li><b>Levakov, LiveJournal – “Замок крестоносцев ШАСТЕЛЬ-АРНУЛЬ” (2009).</b> מקור התצלומים והטענות שאותן בדקנו.
+      <br><a target="_blank" rel="noopener" href="https://levakov.livejournal.com/20313.html?thread=186457#t186457">פתיחת הבלוג המקורי</a></li>
+    <li><b>Adrian J. Boas, Archaeology of the Military Orders</b>, Routledge, 2006, עמ' 113–114, 233. מקור מרכזי לתיאור האדריכלי, ההיסטוריה הצלבנית והסקר.
+      <br><a target="_blank" rel="noopener" href="https://dokumen.pub/archaeology-of-the-military-orders-a-survey-of-the-urban-centres-rural-settlements-and-castles-of-the-military-orders-in-the-latin-east-c11201291-1nbsped-0415299802-9780415299800.html">גרסה מקוונת לעיון</a></li>
+    <li><b>Denys Pringle, Secular Buildings in the Crusader Kingdom of Jerusalem: An Archaeological Gazetteer</b>, Cambridge University Press, 1997, עמ' 106–107. סקר האתר ותיאור השרידים.</li>
+    <li><b>Emmaus-Nicopolis – Crusader Period.</b> מסכם את בניית המבצר בידי בלדווין הראשון, חורבנו ב־1106 והקמתו מחדש ב־1132–1133; מפנה גם לאלברט מאאכן, ויליאם מצור ובואס.
+      <br><a target="_blank" rel="noopener" href="https://www.emmaus-nicopolis.org/english/history-of-emmaus/crusader-period">פתיחת המקור</a></li>
+    <li><b>קק"ל – פארק איילון–קנדה.</b> מקור למיקום תל איילון, בית הקשתות, תיאור דרכי הפארק ואזהרות בטיחות.
+      <br><a target="_blank" rel="noopener" href="https://www.kkl.org.il/travel/kkl_p_ayacan/">פתיחת עמוד הפארק</a></li>
+    <li><b>קק"ל – הודעות למטיילים.</b> נכון ל־2026 מופיעה הודעה שהפארק סגור עד הודעה חדשה בעקבות השריפה.
+      <br><a target="_blank" rel="noopener" href="https://www.kkl.org.il/recreation-and-tours/messages/">בדיקת סטטוס עדכני</a></li>
+    <li><b>Crusader Atlas – Tel Ayalon (Castellum Arnoldi).</b> נקודת ייחוס גאוגרפית 31.8376, 35.0202.
+      <br><a target="_blank" rel="noopener" href="https://crusaderatlas.com/sites/tel-ayalon-castellum-arnoldi/">פתיחת האטלס</a></li>
+  </ol>
+</section>
+<section class="card good">
+  <h2>שורה תחתונה</h2>
+  <p>קסטלום ארנולדי הוא פחות “טירה מרשימה” ויותר מפתח להבנת רשת ההגנה של ממלכת ירושלים: מצודת דרך קטנה אך אסטרטגית, שנועדה לשלוט במעבר מן השפלה אל ההר. הבלוג של Levakov מצוין כתיעוד שטח, במיוחד בזכות תצלומי המדרגות, הקמרונות והחללים, אך מבחינה היסטורית יש לתקן את תאריך הבנייה הפשוט “1105”, להבחין בין המצודה המוקדמת לבין הבנייה המחודשת של 1132–1133, ולהתייחס לקישור השם לארנולף מאודנארדה כהשערה בלבד.</p>
+</section>
+</main>
+<footer>נערך כמדריך מחקר וביקור בעברית · עודכן לפי מקורות שנבדקו בספטמבר 2026</footer>
+</body>
+</html>
