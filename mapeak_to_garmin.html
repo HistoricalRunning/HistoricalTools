@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapeak → Garmin Course</title>
+<style>
+:root{
+  --bg:#0b1020;--panel:#121a2b;--panel2:#182238;--text:#eef4ff;--muted:#9fb0ca;
+  --accent:#53d18c;--accent2:#66a9ff;--warn:#ffcf66;--danger:#ff7b7b;--line:#2a3854;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b1020,#0e1526);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.container{max-width:1180px;margin:auto;padding:24px}
+h1{margin:0 0 6px;font-size:32px}
+.sub{color:var(--muted);margin:0 0 22px;line-height:1.55}
+.grid{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}
+.card{background:rgba(18,26,43,.96);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 16px 40px #0005}
+label{display:block;font-weight:700;margin:0 0 8px}
+input,select,textarea,button{font:inherit}
+input[type=text],input[type=number],textarea,select{
+  width:100%;background:#0b1323;border:1px solid #334563;color:#fff;border-radius:11px;padding:11px 12px;outline:none
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent2)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row > .grow{flex:1 1 280px}
+button,.btn{
+  border:0;border-radius:11px;padding:11px 15px;cursor:pointer;font-weight:700;text-decoration:none;
+  background:#253652;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:6px
+}
+button:hover,.btn:hover{filter:brightness(1.12)}
+.primary{background:var(--accent);color:#07130d}
+.blue{background:var(--accent2);color:#07101d}
+.warn{background:#5b4720;color:#ffe7a7}
+.ghost{border:1px solid #3a4d70;background:transparent}
+.small{padding:8px 10px;font-size:13px}
+.drop{
+  border:2px dashed #3c5279;border-radius:14px;padding:24px;text-align:center;background:#0d1628;margin-top:12px;
+  transition:.15s
+}
+.drop.drag{border-color:var(--accent);background:#10251d}
+.drop strong{display:block;font-size:18px;margin-bottom:6px}
+.muted{color:var(--muted)}
+.status{margin-top:12px;padding:11px 12px;border-radius:11px;background:#0c1424;color:#c8d5e8;min-height:42px;line-height:1.45}
+.status.ok{border:1px solid #2d7753;color:#baf3d3}
+.status.err{border:1px solid #7a3940;color:#ffd1d1}
+.status.warn{border:1px solid #7b6230;color:#ffe7a7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat{background:#0d1627;border:1px solid #263652;border-radius:12px;padding:12px}
+.stat .v{font-size:22px;font-weight:800}
+.stat .k{font-size:12px;color:var(--muted);margin-top:4px}
+.mapwrap{background:#09101d;border:1px solid #293850;border-radius:15px;overflow:hidden;position:relative}
+#routeSvg{display:block;width:100%;height:430px;background:
+ linear-gradient(#ffffff08 1px,transparent 1px),
+ linear-gradient(90deg,#ffffff08 1px,transparent 1px);
+ background-size:36px 36px}
+#elevCanvas{width:100%;height:150px;display:block;background:#0b1322;border-radius:12px;border:1px solid #283650}
+.legend{position:absolute;top:10px;right:10px;background:#0b1323dd;border:1px solid #334563;border-radius:10px;padding:7px 9px;font-size:12px}
+.section{margin-top:16px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.note{font-size:13px;color:var(--muted);line-height:1.55}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.checkbox{display:flex;align-items:center;gap:7px;color:#dce7f8}
+.checkbox input{width:auto}
+kbd{background:#0a1120;border:1px solid #34445f;border-bottom-width:2px;border-radius:6px;padding:2px 5px}
+.footer{color:#7f91ad;text-align:center;font-size:12px;margin-top:18px}
+.badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#1f304d;color:#cfe2ff}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}#routeSvg{height:340px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Mapeak → Garmin Course</h1>
+  <p class="sub">כלי מקומי להמרת מסלול GPX למסלול נקי ל־Garmin Connect. הדבק קישור Mapeak לניסיון חילוץ אוטומטי, או טען את קובץ ה־GPX שהורדת מ־Mapeak.</p>
+
+  <div class="grid">
+    <div class="card">
+      <label>1. קישור Mapeak</label>
+      <div class="row">
+        <div class="grow">
+          <input id="mapeakUrl" type="text" value="https://mapeak.com/share/lhsy5lgEzI" placeholder="https://mapeak.com/share/...">
+        </div>
+        <button id="tryFetchBtn" class="blue">נסה לחלץ</button>
+        <button id="openMapeakBtn" class="ghost">פתח Mapeak ↗</button>
+      </div>
+
+      <div id="status" class="status">
+        הדבק קישור ולחץ "נסה לחלץ". אם הדפדפן חוסם גישה ישירה ל־Mapeak (CORS), הורד GPX מ־Mapeak וגרור אותו לכאן.
+      </div>
+
+      <div id="dropZone" class="drop">
+        <strong>2. גרור לכאן קובץ GPX</strong>
+        <span class="muted">או לחץ לבחירת קובץ</span>
+        <input id="fileInput" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
+      </div>
+
+      <div class="section">
+        <label>או הדבק GPX כטקסט</label>
+        <textarea id="gpxText" rows="5" placeholder="&lt;?xml version=&quot;1.0&quot;?&gt; ..."></textarea>
+        <div class="actions">
+          <button id="parseTextBtn" class="small">טען טקסט GPX</button>
+          <button id="clearBtn" class="small ghost">נקה</button>
+        </div>
+      </div>
+
+      <hr>
+
+      <label>3. הגדרות למסלול Garmin</label>
+      <div class="row">
+        <div class="grow">
+          <label class="muted" style="font-weight:400">שם המסלול</label>
+          <input id="courseName" type="text" value="Mapeak Course">
+        </div>
+        <div style="width:160px">
+          <label class="muted" style="font-weight:400">מקסימום נקודות</label>
+          <input id="maxPoints" type="number" min="100" step="100" value="10000">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="reverseBtn">הפוך כיוון</button>
+        <button id="simplifyBtn">פשט מסלול</button>
+        <label class="checkbox"><input id="keepEle" type="checkbox" checked> שמור גבהים</label>
+      </div>
+
+      <div class="actions">
+        <button id="downloadBtn" class="primary">הורד Garmin GPX</button>
+        <button id="garminBtn" class="blue">פתח Garmin Connect ↗</button>
+      </div>
+
+      <p class="note">
+        Garmin Connect מקבל GPX/TCX/FIT. הכלי יוצר GPX 1.1 מסוג Track עם מסלול יחיד, פורמט יציב לייבוא כ־Course.
+        לא ניתן להעלות ישירות לחשבון Garmin מתוך HTML מקומי ללא API והרשאה לחשבון.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">תצוגה מקדימה</h2>
+        <span id="pointBadge" class="badge">0 נקודות</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div id="distanceStat" class="v">—</div><div class="k">מרחק</div></div>
+        <div class="stat"><div id="gainStat" class="v">—</div><div class="k">טיפוס</div></div>
+        <div class="stat"><div id="lossStat" class="v">—</div><div class="k">ירידה</div></div>
+        <div class="stat"><div id="loopStat" class="v">—</div><div class="k">התחלה↔סיום</div></div>
+      </div>
+
+      <div class="section mapwrap">
+        <svg id="routeSvg" viewBox="0 0 800 430" preserveAspectRatio="none">
+          <polyline id="routeLine" fill="none" stroke="#53d18c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" points=""></polyline>
+          <circle id="startDot" r="7" fill="#66a9ff" cx="-20" cy="-20"></circle>
+          <circle id="endDot" r="7" fill="#ffcf66" cx="-20" cy="-20"></circle>
+        </svg>
+        <div class="legend">🔵 התחלה &nbsp; 🟡 סיום</div>
+      </div>
+
+      <div class="section">
+        <label>פרופיל גובה</label>
+        <canvas id="elevCanvas" width="800" height="150"></canvas>
+      </div>
+
+      <div class="section note" id="coordInfo">לא נטען מסלול.</div>
+    </div>
+  </div>
+
+  <div class="footer">הקובץ פועל מקומית בדפדפן. נתוני המסלול נשארים במחשב שלך.</div>
+</div>
+
+<script>
+'use strict';
+
+let points = [];
+let sourceName = 'Mapeak Course';
+
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+
+function setStatus(msg, type='') {
+  statusEl.textContent = msg;
+  statusEl.className = 'status' + (type ? ' ' + type : '');
+}
+
+function escXml(s='') {
+  return String(s).replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+}
+
+function safeName(s) {
+  return (s || 'Garmin-Course').replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().slice(0,80) || 'Garmin-Course';
+}
+
+function hav(a,b){
+  const R=6371000, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+  const x=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+
+function parseGPX(xmlText, fallbackName='Mapeak Course') {
+  const doc = new DOMParser().parseFromString(xmlText,'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('קובץ GPX אינו XML תקין.');
+
+  let nodes = [...doc.querySelectorAll('trkpt')];
+  if (!nodes.length) nodes = [...doc.querySelectorAll('rtept')];
+  if (!nodes.length) throw new Error('לא נמצאו נקודות trkpt/rtept בקובץ.');
+
+  const parsed = nodes.map(n => {
+    const lat=parseFloat(n.getAttribute('lat')), lon=parseFloat(n.getAttribute('lon'));
+    const eleNode=n.querySelector('ele');
+    const timeNode=n.querySelector('time');
+    return {
+      lat, lon,
+      ele: eleNode ? parseFloat(eleNode.textContent) : null,
+      time: timeNode ? timeNode.textContent.trim() : null
+    };
+  }).filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon));
+
+  if (parsed.length < 2) throw new Error('נדרשות לפחות שתי נקודות תקינות.');
+
+  const nameNode = doc.querySelector('trk > name, rte > name, metadata > name');
+  sourceName = nameNode?.textContent?.trim() || fallbackName;
+  points = parsed;
+  $('courseName').value = sourceName;
+  render();
+  setStatus(`נטען בהצלחה: ${sourceName} — ${points.length.toLocaleString()} נקודות.`, 'ok');
+}
+
+function calcStats() {
+  let dist=0,gain=0,loss=0;
+  for(let i=1;i<points.length;i++){
+    dist += hav(points[i-1],points[i]);
+    if(Number.isFinite(points[i-1].ele) && Number.isFinite(points[i].ele)){
+      const d=points[i].ele-points[i-1].ele;
+      if(d>0) gain+=d; else loss-=d;
+    }
+  }
+  const gap=points.length>1 ? hav(points[0],points[points.length-1]) : 0;
+  return {dist,gain,loss,gap};
+}
+
+function formatDist(m){
+  return m>=1000 ? (m/1000).toFixed(m>=10000?1:2)+' ק״מ' : Math.round(m)+' מ׳';
+}
+
+function render(){
+  $('pointBadge').textContent = `${points.length.toLocaleString()} נקודות`;
+  if(!points.length){
+    $('distanceStat').textContent=$('gainStat').textContent=$('lossStat').textContent=$('loopStat').textContent='—';
+    $('routeLine').setAttribute('points','');
+    $('startDot').setAttribute('cx','-20'); $('endDot').setAttribute('cx','-20');
+    $('coordInfo').textContent='לא נטען מסלול.';
+    drawElevation();
+    return;
+  }
+  const s=calcStats();
+  $('distanceStat').textContent=formatDist(s.dist);
+  $('gainStat').textContent=Math.round(s.gain)+' מ׳';
+  $('lossStat').textContent=Math.round(s.loss)+' מ׳';
+  $('loopStat').textContent=formatDist(s.gap);
+
+  const minLat=Math.min(...points.map(p=>p.lat)), maxLat=Math.max(...points.map(p=>p.lat));
+  const minLon=Math.min(...points.map(p=>p.lon)), maxLon=Math.max(...points.map(p=>p.lon));
+  const W=800,H=430,pad=28;
+  const midLat=(minLat+maxLat)/2;
+  const lonScale=Math.max(0.2,Math.cos(midLat*Math.PI/180));
+  const dx=Math.max((maxLon-minLon)*lonScale,1e-9), dy=Math.max(maxLat-minLat,1e-9);
+  const scale=Math.min((W-2*pad)/dx,(H-2*pad)/dy);
+  const routeW=dx*scale, routeH=dy*scale;
+  const ox=(W-routeW)/2, oy=(H-routeH)/2;
+  const project=p=>({
+    x:ox+(p.lon-minLon)*lonScale*scale,
+    y:H-(oy+(p.lat-minLat)*scale)
+  });
+  const svgPts=points.map(p=>{const q=project(p);return `${q.x.toFixed(1)},${q.y.toFixed(1)}`}).join(' ');
+  $('routeLine').setAttribute('points',svgPts);
+  const a=project(points[0]), b=project(points[points.length-1]);
+  $('startDot').setAttribute('cx',a.x); $('startDot').setAttribute('cy',a.y);
+  $('endDot').setAttribute('cx',b.x); $('endDot').setAttribute('cy',b.y);
+
+  $('coordInfo').textContent =
+    `התחלה: ${points[0].lat.toFixed(6)}, ${points[0].lon.toFixed(6)} · סיום: ${points.at(-1).lat.toFixed(6)}, ${points.at(-1).lon.toFixed(6)}`;
+  drawElevation();
+}
+
+function drawElevation(){
+  const c=$('elevCanvas'),ctx=c.getContext('2d'),W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0b1322';ctx.fillRect(0,0,W,H);
+  const arr=points.map(p=>p.ele).filter(Number.isFinite);
+  if(arr.length<2){
+    ctx.fillStyle='#899ab4';ctx.font='16px Arial';ctx.textAlign='center';
+    ctx.fillText('אין נתוני גובה במסלול',W/2,H/2+5); return;
+  }
+  const vals=points.map(p=>Number.isFinite(p.ele)?p.ele:null);
+  const min=Math.min(...arr),max=Math.max(...arr),range=Math.max(max-min,1);
+  ctx.beginPath();
+  let started=false;
+  vals.forEach((e,i)=>{
+    if(e===null)return;
+    const x=12+i/(vals.length-1)*(W-24), y=H-15-(e-min)/range*(H-30);
+    if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#66a9ff';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#9fb0ca';ctx.font='12px Arial';ctx.textAlign='left';
+  ctx.fillText(`${Math.round(max)}m`,8,14);
+  ctx.fillText(`${Math.round(min)}m`,8,H-4);
+}
+
+function perpendicularDistance(p,a,b){
+  const x=p.lon,y=p.lat,x1=a.lon,y1=a.lat,x2=b.lon,y2=b.lat;
+  const dx=x2-x1,dy=y2-y1;
+  if(dx===0&&dy===0)return Math.hypot(x-x1,y-y1);
+  const t=Math.max(0,Math.min(1,((x-x1)*dx+(y-y1)*dy)/(dx*dx+dy*dy)));
+  return Math.hypot(x-(x1+t*dx),y-(y1+t*dy));
+}
+function rdp(arr,eps){
+  if(arr.length<3)return arr.slice();
+  let idx=0,maxD=0;
+  for(let i=1;i<arr.length-1;i++){
+    const d=perpendicularDistance(arr[i],arr[0],arr[arr.length-1]);
+    if(d>maxD){idx=i;maxD=d;}
+  }
+  if(maxD>eps){
+    const l=rdp(arr.slice(0,idx+1),eps),r=rdp(arr.slice(idx),eps);
+    return l.slice(0,-1).concat(r);
+  }
+  return [arr[0],arr[arr.length-1]];
+}
+function simplifyToMax(maxPts){
+  if(points.length<=maxPts)return points.slice();
+  let lo=0,hi=0.02,best=points;
+  for(let k=0;k<28;k++){
+    const mid=(lo+hi)/2, out=rdp(points,mid);
+    if(out.length>maxPts)lo=mid; else {hi=mid;best=out;}
+  }
+  return best;
+}
+
+function buildGPX(){
+  if(points.length<2) throw new Error('אין מסלול לייצוא.');
+  const name=safeName($('courseName').value);
+  const keepEle=$('keepEle').checked;
+  const creator='Mapeak-to-Garmin HTML Tool';
+  const body=points.map(p=>{
+    let x=`    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lon.toFixed(7)}">`;
+    if(keepEle && Number.isFinite(p.ele))x+=`\n      <ele>${p.ele.toFixed(1)}</ele>`;
+    if(p.time)x+=`\n      <time>${escXml(p.time)}</time>`;
+    x+=`\n    </trkpt>`;
+    return x;
+  }).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="${escXml(creator)}"
+ xmlns="http://www.topografix.com/GPX/1/1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata><name>${escXml(name)}</name></metadata>
+  <trk>
+    <name>${escXml(name)}</name>
+    <type>Running</type>
+    <trkseg>
+${body}
+    </trkseg>
+  </trk>
+</gpx>`;
+}
+
+function downloadText(text,filename){
+  const blob=new Blob([text],{type:'application/gpx+xml;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+async function tryMapeakFetch(){
+  const url=$('mapeakUrl').value.trim();
+  if(!/^https?:\/\/(www\.)?mapeak\.com\//i.test(url)){
+    setStatus('הזן קישור תקין של mapeak.com.', 'err'); return;
+  }
+  setStatus('מנסה לקרוא את דף השיתוף של Mapeak…');
+  try{
+    const r=await fetch(url,{mode:'cors',credentials:'omit'});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const txt=await r.text();
+
+    // 1) direct GPX embedded in response
+    const gpxStart=txt.search(/<gpx[\s>]/i);
+    if(gpxStart>=0){
+      const xmlStart=txt.lastIndexOf('<?xml',gpxStart);
+      const end=txt.indexOf('</gpx>',gpxStart);
+      if(end>gpxStart){
+        parseGPX(txt.slice(xmlStart>=0?xmlStart:gpxStart,end+6),'Mapeak Course');
+        return;
+      }
+    }
+
+    // 2) look for explicit GPX URL in HTML/JSON
+    const urls=[...txt.matchAll(/https?:\\?\/\\?\/[^"'<>\\\s]+?\.gpx(?:\?[^"'<>\\\s]*)?/ig)]
+      .map(m=>m[0].replaceAll('\\/','/').replaceAll('\\u0026','&'));
+    if(urls.length){
+      setStatus('נמצא קישור GPX בדף. מנסה לטעון אותו…');
+      const rr=await fetch(urls[0],{mode:'cors'});
+      if(!rr.ok)throw new Error(`GPX HTTP ${rr.status}`);
+      parseGPX(await rr.text(),'Mapeak Course');
+      return;
+    }
+
+    // 3) sniff common coordinate JSON structures
+    const coordPairs=[];
+    const re=/"(?:lat|latitude)"\s*:\s*(-?\d{1,2}\.\d+)\s*,\s*"(?:lon|lng|longitude)"\s*:\s*(-?\d{1,3}\.\d+)/ig;
+    let m;
+    while((m=re.exec(txt)) && coordPairs.length<100000){
+      const lat=parseFloat(m[1]),lon=parseFloat(m[2]);
+      if(Math.abs(lat)<=90&&Math.abs(lon)<=180)coordPairs.push({lat,lon,ele:null,time:null});
+    }
+    if(coordPairs.length>20){
+      points=coordPairs; sourceName=document.title||'Mapeak Course'; $('courseName').value='Mapeak Course'; render();
+      setStatus(`נמצאו ${points.length.toLocaleString()} נקודות בקוד הדף. בדוק את התצוגה לפני ייצוא.`, 'warn');
+      return;
+    }
+
+    setStatus('הדף נטען, אך לא נמצא בו GPX גלוי. הורד GPX מתוך Mapeak וגרור אותו לאזור הטעינה.', 'warn');
+  }catch(e){
+    setStatus('הדפדפן לא הצליח לקרוא את Mapeak ישירות (בדרך כלל בגלל CORS). פתח את Mapeak, הורד GPX, ואז גרור אותו לכאן. פרטי שגיאה: '+e.message, 'warn');
+  }
+}
+
+$('tryFetchBtn').addEventListener('click',tryMapeakFetch);
+$('openMapeakBtn').addEventListener('click',()=>{
+  const u=$('mapeakUrl').value.trim(); if(u) window.open(u,'_blank','noopener');
+});
+$('garminBtn').addEventListener('click',()=>window.open('https://connect.garmin.com/app/courses','_blank','noopener'));
+
+$('dropZone').addEventListener('click',()=> $('fileInput').click());
+['dragenter','dragover'].forEach(ev=>$('dropZone').addEventListener(ev,e=>{e.preventDefault();$('dropZone').classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>$('dropZone').addEventListener(ev,e=>{e.preventDefault();$('dropZone').classList.remove('drag')}));
+$('dropZone').addEventListener('drop',e=>{
+  const f=e.dataTransfer.files[0]; if(f) loadFile(f);
+});
+$('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(f)loadFile(f)});
+
+function loadFile(f){
+  if(/\.zip$/i.test(f.name)){setStatus('זהו ZIP. חלץ ממנו את קובץ ה־GPX וגרור את ה־GPX לכאן.', 'warn');return;}
+  const r=new FileReader();
+  r.onload=()=>{try{parseGPX(r.result,f.name.replace(/\.gpx$/i,''))}catch(e){setStatus(e.message,'err')}};
+  r.onerror=()=>setStatus('שגיאה בקריאת הקובץ.','err');
+  r.readAsText(f);
+}
+
+$('parseTextBtn').addEventListener('click',()=>{
+  try{parseGPX($('gpxText').value,'Pasted GPX')}catch(e){setStatus(e.message,'err')}
+});
+$('reverseBtn').addEventListener('click',()=>{
+  if(points.length<2)return setStatus('טען מסלול קודם.','warn');
+  points.reverse();render();setStatus('כיוון המסלול הוחלף.','ok');
+});
+$('simplifyBtn').addEventListener('click',()=>{
+  if(points.length<2)return setStatus('טען מסלול קודם.','warn');
+  const max=Math.max(100,parseInt($('maxPoints').value)||10000);
+  const before=points.length; points=simplifyToMax(max);render();
+  setStatus(before===points.length ? 'אין צורך בפישוט — מספר הנקודות כבר מתחת למגבלה.' :
+    `המסלול פושט מ־${before.toLocaleString()} ל־${points.length.toLocaleString()} נקודות.`, 'ok');
+});
+$('downloadBtn').addEventListener('click',()=>{
+  try{
+    const gpx=buildGPX(), name=safeName($('courseName').value)+'.gpx';
+    downloadText(gpx,name);
+    setStatus(`נוצר ${name}. כעת פתח Garmin Connect → Courses → Import והעלה את הקובץ.`, 'ok');
+  }catch(e){setStatus(e.message,'err')}
+});
+$('clearBtn').addEventListener('click',()=>{
+  points=[];$('gpxText').value='';$('courseName').value='Mapeak Course';render();setStatus('נוקה.');
+});
+
+render();
+</script>
+</body>
+</html>
