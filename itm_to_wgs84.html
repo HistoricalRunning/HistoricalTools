@@ -28,7 +28,7 @@
     h1 { margin-top: 0; font-size: 1.6rem; }
     p { line-height: 1.55; }
     label { display:block; font-weight:700; margin: 18px 0 8px; }
-    input {
+    input, select {
       width: 100%;
       box-sizing: border-box;
       font-size: 1.15rem;
@@ -80,29 +80,32 @@
       color:#8a1c1c;
       display:none;
     }
+    .hint { margin-top:8px; font-size:.92rem; color:#667085; }
     small { color:#667085; }
     @media (prefers-color-scheme: dark) {
       body { background:#111827; color:#e5e7eb; }
       .card { background:#1f2937; }
-      input { background:#111827; color:#fff; border-color:#4b5563; }
+      input,select { background:#111827; color:#fff; border-color:#4b5563; }
       .result { background:#172554; border-color:#1d4ed8; }
       .error { background:#451a1a; color:#fecaca; }
-      small { color:#aab3c0; }
+      .hint,small { color:#aab3c0; }
     }
   </style>
 </head>
 <body>
   <main class="card">
-    <h1>המרת רשת ישראל החדשה (ITM) ל־WGS84</h1>
-    <p>
-      הזן נ״צ בפורמט <b>מזרח / צפון</b>, לדוגמה:
-      <span dir="ltr"><b>216948/635117</b></span>.
-      ניתן גם להשתמש בפסיק או ברווח.
-    </p>
+    <h1>המרת רשת ישראל ל־WGS84</h1>
 
-    <label for="itm">נ״צ ITM</label>
-    <input id="itm" value="216948/635117" autocomplete="off"
-           placeholder="216948/635117" />
+    <label for="grid">סוג רשת</label>
+    <select id="grid">
+      <option value="auto">זיהוי אוטומטי</option>
+      <option value="itm">רשת ישראל החדשה — ITM / EPSG:2039</option>
+      <option value="old">רשת ישראל הישנה / Palestine Grid — EPSG:28191</option>
+    </select>
+
+    <label for="coord">נ״צ</label>
+    <input id="coord" value="216948/635117" autocomplete="off" />
+    <div id="hint" class="hint"></div>
 
     <div class="buttons">
       <button id="convert">המר</button>
@@ -117,15 +120,16 @@
       <div id="details"></div>
       <div class="buttons">
         <button id="copy" class="secondary">העתק קואורדינטות</button>
-        <a id="mapeak" class="button" target="_blank" rel="noopener">פתח ב־MAPeak</a>
-        <a id="maps" class="button" target="_blank" rel="noopener">פתח ב־Google Maps</a>
-        <a id="waze" class="button" target="_blank" rel="noopener">פתח ב־Waze</a>
+        <a id="mapeak" class="button" target="_blank" rel="noopener">MAPeak</a>
+        <a id="maps" class="button" target="_blank" rel="noopener">Google Maps</a>
+        <a id="waze" class="button" target="_blank" rel="noopener">Waze</a>
       </div>
     </section>
 
     <p><small>
-      ההמרה מתבססת על EPSG:2039 (Israel 1993 / Israeli TM Grid), כולל טרנספורמציית datum ל־WGS84.
-      הקובץ פועל מקומית ואינו דורש חיבור לאינטרנט לצורך החישוב.
+      ברשת הישנה נתמכת גם כתיבה מקוצרת כגון
+      <span dir="ltr">17431/18021</span>, שתפורש אוטומטית כ־
+      <span dir="ltr">174310/180210</span>.
     </small></p>
   </main>
 
@@ -248,76 +252,188 @@ function itmToWGS84(E, N) {
   return ecefToWGS84(w.x, w.y, w.z);
 }
 
-function parseITM(text) {
-  const cleaned = text.trim().replace(/[;|]/g, " ");
-  const nums = cleaned.match(/-?\d+(?:\.\d+)?/g);
-  if (!nums || nums.length < 2) {
-    throw new Error("לא הצלחתי לזהות שני מספרים. לדוגמה: 216948/635117");
-  }
-  const E = Number(nums[0]);
-  const N = Number(nums[1]);
-  if (!Number.isFinite(E) || !Number.isFinite(N)) {
-    throw new Error("הקואורדינטות אינן תקינות.");
-  }
-  // Practical EPSG:2039 bounds with a little tolerance.
-  if (E < 100000 || E > 300000 || N < 350000 || N > 820000) {
-    throw new Error("הערכים אינם נראים כמו נ״צ ברשת ישראל החדשה (ITM).");
-  }
-  return { E, N };
+
+function footpointFromM(M,a,e2) {
+  const mu = M/(a*(1-e2/4-3*e2*e2/64-5*e2*e2*e2/256));
+  const e1 = (1-Math.sqrt(1-e2))/(1+Math.sqrt(1-e2));
+  return mu
+    +(3*e1/2-27*Math.pow(e1,3)/32)*Math.sin(2*mu)
+    +(21*e1*e1/16-55*Math.pow(e1,4)/32)*Math.sin(4*mu)
+    +(151*Math.pow(e1,3)/96)*Math.sin(6*mu)
+    +(1097*Math.pow(e1,4)/512)*Math.sin(8*mu);
 }
 
-const input = document.getElementById("itm");
-const result = document.getElementById("result");
-const errorBox = document.getElementById("error");
-const latlon = document.getElementById("latlon");
-const details = document.getElementById("details");
-const mapeak = document.getElementById("mapeak");
-const maps = document.getElementById("maps");
-const waze = document.getElementById("waze");
+function helmert(x,y,z,p) {
+  const sec=Math.PI/(180*3600);
+  const rx=p.rx*sec, ry=p.ry*sec, rz=p.rz*sec;
+  const m=1+p.s*1e-6;
+  return {
+    x:p.dx + m*x - rz*y + ry*z,
+    y:p.dy + rz*x + m*y - rx*z,
+    z:p.dz - ry*x + rx*y + m*z
+  };
+}
 
-function convert() {
-  errorBox.style.display = "none";
-  result.style.display = "none";
-  try {
-    const { E, N } = parseITM(input.value);
-    const out = itmToWGS84(E, N);
-    const s = `${out.lat.toFixed(7)}, ${out.lon.toFixed(7)}`;
-    latlon.textContent = s;
-    details.innerHTML =
-      `Latitude: <span dir="ltr">${out.lat.toFixed(7)}</span><br>` +
-      `Longitude: <span dir="ltr">${out.lon.toFixed(7)}</span>`;
-    mapeak.href = `https://mapeak.com/poi/Coordinates/${out.lat.toFixed(6)}_${out.lon.toFixed(6)}`;
-    maps.href = `https://www.google.com/maps?q=${out.lat},${out.lon}`;
-    waze.href = `https://www.waze.com/ul?ll=${out.lat},${out.lon}&navigate=yes`;
-    result.style.display = "block";
-    result.dataset.coord = s;
-  } catch (err) {
-    errorBox.textContent = err.message || String(err);
-    errorBox.style.display = "block";
+function oldGridInverse(E,N) {
+  const a=6378300.789, rf=293.466315538981, f=1/rf, e2=f*(2-f);
+  const lat0=31.7340969444444*RAD, lon0=35.2120805555556*RAD;
+  const FE=170251.555, FN=126867.909;
+  const M0=meridionalArc(lat0,a,e2), M1=M0+(N-FN);
+  const phi1=footpointFromM(M1,a,e2);
+  const nu1=a/Math.sqrt(1-e2*Math.sin(phi1)*Math.sin(phi1));
+  const rho1=a*(1-e2)/Math.pow(1-e2*Math.sin(phi1)*Math.sin(phi1),1.5);
+  const T1=Math.tan(phi1)*Math.tan(phi1);
+  const D=(E-FE)/nu1;
+  const lat=phi1-(nu1*Math.tan(phi1)/rho1)*(D*D/2-(1+3*T1)*Math.pow(D,4)/24);
+  const lon=lon0+(D-T1*Math.pow(D,3)/3+(1+3*T1)*T1*Math.pow(D,5)/15)/Math.cos(phi1);
+  return {lat,lon};
+}
+
+function oldGridToWGS84(E,N) {
+  if(N>800000) N-=1000000;
+  const g=oldGridInverse(E,N);
+  const xyz=geodeticToECEF(g.lat,g.lon,0,6378300.789,293.466315538981);
+  const w=helmert(xyz.x,xyz.y,xyz.z,{
+    dx:-275.7224,dy:94.7824,dz:340.8944,rx:-8.001,ry:-4.42,rz:-11.821,s:1
+  });
+  return ecefToWGS84(w.x,w.y,w.z);
+}
+
+function parseRawPair(text) {
+  const nums=text.trim().match(/-?\d+(?:\.\d+)?/g);
+  if(!nums || nums.length<2) throw new Error("לא הצלחתי לזהות שני מספרים.");
+  const E=Number(nums[0]), N=Number(nums[1]);
+  if(!Number.isFinite(E)||!Number.isFinite(N)) throw new Error("הקואורדינטות אינן תקינות.");
+  return {E,N};
+}
+
+function parsePairForGrid(text,grid) {
+  let p=parseRawPair(text), E=p.E, N=p.N;
+  if(grid==="old"){
+    if(Math.abs(E)<100000 && Math.abs(N)<100000){ E*=10; N*=10; }
+    if(E<50000 || E>300000 || N< -150000 || N>1400000)
+      throw new Error("הערכים אינם נראים כמו רשת ישראל הישנה.");
+  } else if(grid==="itm"){
+    if(E<100000 || E>300000 || N<350000 || N>820000)
+      throw new Error("הערכים אינם נראים כמו ITM.");
+  }
+  return {E,N};
+}
+
+function plausibleIsrael(out){
+  return out && Number.isFinite(out.lat) && Number.isFinite(out.lon) &&
+         out.lat>=29.0 && out.lat<=33.8 && out.lon>=34.0 && out.lon<=36.6;
+}
+
+function autoDetectAndConvert(text){
+  const raw=parseRawPair(text);
+  const candidates=[];
+
+  if(raw.N>=350000 && raw.N<=820000 && raw.E>=100000 && raw.E<=300000){
+    try{
+      const p=parsePairForGrid(text,"itm"), out=itmToWGS84(p.E,p.N);
+      if(plausibleIsrael(out)) candidates.push({grid:"itm",p,out,score:3});
+    }catch(e){}
+  }
+
+  try{
+    const p=parsePairForGrid(text,"old"), out=oldGridToWGS84(p.E,p.N);
+    if(plausibleIsrael(out)){
+      let score=1;
+      if(raw.N<350000 || raw.N>820000) score=3;
+      if(Math.abs(raw.E)<100000 && Math.abs(raw.N)<100000) score=4;
+      candidates.push({grid:"old",p,out,score});
+    }
+  }catch(e){}
+
+  if(!candidates.some(function(x){return x.grid==="itm";})){
+    try{
+      const p=parsePairForGrid(text,"itm"), out=itmToWGS84(p.E,p.N);
+      if(plausibleIsrael(out)) candidates.push({grid:"itm",p,out,score:1});
+    }catch(e){}
+  }
+
+  if(!candidates.length) throw new Error("לא הצלחתי לזהות את סוג הרשת או לקבל תוצאה סבירה בישראל.");
+  candidates.sort(function(a,b){return b.score-a.score;});
+  return candidates[0];
+}
+
+const grid=document.getElementById("grid");
+const input=document.getElementById("coord");
+const hint=document.getElementById("hint");
+const result=document.getElementById("result");
+const errorBox=document.getElementById("error");
+const latlon=document.getElementById("latlon");
+const details=document.getElementById("details");
+const mapeak=document.getElementById("mapeak");
+const maps=document.getElementById("maps");
+const waze=document.getElementById("waze");
+
+function refreshHint(){
+  if(grid.value==="itm"){
+    hint.innerHTML='דוגמה: <span dir="ltr">216948/635117</span>';
+    if(!input.value || input.value==="174310/180210" || input.value==="17431/18021") input.value="216948/635117";
+  } else if(grid.value==="old"){
+    hint.innerHTML='דוגמה: <span dir="ltr">174310/180210</span> או בכתיבה מקוצרת <span dir="ltr">17431/18021</span>';
+    if(!input.value || input.value==="216948/635117") input.value="174310/180210";
+  } else {
+    hint.innerHTML='הדבק נ״צ והרשת תזוהה אוטומטית. לדוגמה: <span dir="ltr">216948/635117</span> או <span dir="ltr">17431/18021</span>';
+  }
+  result.style.display="none";
+  errorBox.style.display="none";
+}
+
+function convert(){
+  errorBox.style.display="none";
+  result.style.display="none";
+  try{
+    let out,detected,p;
+    if(grid.value==="auto"){
+      const r=autoDetectAndConvert(input.value);
+      out=r.out; detected=r.grid; p=r.p;
+    } else {
+      p=parsePairForGrid(input.value,grid.value);
+      detected=grid.value;
+      out=grid.value==="itm" ? itmToWGS84(p.E,p.N) : oldGridToWGS84(p.E,p.N);
+      if(!plausibleIsrael(out)) throw new Error("ההמרה החזירה נקודה שאינה נראית סבירה בישראל. בדוק את סוג הרשת.");
+    }
+
+    const s=out.lat.toFixed(7)+", "+out.lon.toFixed(7);
+    const detectedName=detected==="itm" ? "רשת ישראל החדשה (ITM)" : "רשת ישראל הישנה (Palestine Grid)";
+    latlon.textContent=s;
+    details.innerHTML="<b>זוהה:</b> "+detectedName+"<br>"+
+      'Latitude: <span dir="ltr">'+out.lat.toFixed(7)+"</span><br>"+
+      'Longitude: <span dir="ltr">'+out.lon.toFixed(7)+"</span>";
+
+    mapeak.href="https://mapeak.com/poi/Coordinates/"+out.lat.toFixed(6)+"_"+out.lon.toFixed(6);
+    maps.href="https://www.google.com/maps?q="+out.lat+","+out.lon;
+    waze.href="https://www.waze.com/ul?ll="+out.lat+","+out.lon+"&navigate=yes";
+    result.dataset.coord=s;
+    result.style.display="block";
+  }catch(e){
+    errorBox.textContent=e.message || String(e);
+    errorBox.style.display="block";
   }
 }
 
-document.getElementById("convert").addEventListener("click", convert);
-document.getElementById("clear").addEventListener("click", () => {
-  input.value = "";
-  result.style.display = "none";
-  errorBox.style.display = "none";
-  input.focus();
+grid.addEventListener("change",refreshHint);
+document.getElementById("convert").addEventListener("click",convert);
+document.getElementById("clear").addEventListener("click",function(){
+  input.value=""; result.style.display="none"; errorBox.style.display="none"; input.focus();
 });
-document.getElementById("copy").addEventListener("click", async () => {
-  const text = result.dataset.coord || "";
-  try {
-    await navigator.clipboard.writeText(text);
-    document.getElementById("copy").textContent = "הועתק ✓";
-    setTimeout(() => document.getElementById("copy").textContent = "העתק קואורדינטות", 1200);
-  } catch {
-    window.prompt("העתק את הקואורדינטות:", text);
-  }
+document.getElementById("copy").addEventListener("click",async function(){
+  const t=result.dataset.coord||"";
+  try{
+    await navigator.clipboard.writeText(t);
+    const b=document.getElementById("copy");
+    b.textContent="הועתק ✓";
+    setTimeout(function(){b.textContent="העתק קואורדינטות";},1200);
+  }catch(e){ window.prompt("העתק את הקואורדינטות:",t); }
 });
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") convert();
-});
+input.addEventListener("keydown",function(e){if(e.key==="Enter") convert();});
 
+grid.value="auto";
+refreshHint();
 convert();
 </script>
 </body>
