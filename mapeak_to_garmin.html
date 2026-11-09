@@ -85,20 +85,20 @@ kbd{background:#0a1120;border:1px solid #34445f;border-bottom-width:2px;border-r
       </div>
 
       <div id="status" class="status">
-        הדבק קישור ולחץ "נסה לחלץ". אם הדפדפן חוסם גישה ישירה ל־Mapeak (CORS), הורד GPX מ־Mapeak וגרור אותו לכאן.
+        אפשר להדביק GPX או JSON מתוך Network → Payload של בקשת files?format=gpx_route. חילוץ ישיר מקישור השיתוף עשוי להיכשל בגלל הרשאות, CORS או 404.
       </div>
 
       <div id="dropZone" class="drop">
-        <strong>2. גרור לכאן קובץ GPX</strong>
+        <strong>2. גרור לכאן קובץ GPX או JSON של Mapeak</strong>
         <span class="muted">או לחץ לבחירת קובץ</span>
-        <input id="fileInput" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" hidden>
+        <input id="fileInput" type="file" accept=".gpx,.json,application/gpx+xml,application/xml,text/xml,application/json" hidden>
       </div>
 
       <div class="section">
-        <label>או הדבק GPX כטקסט</label>
+        <label>או הדבק GPX / JSON מתוך Network → Payload</label>
         <textarea id="gpxText" rows="5" placeholder="&lt;?xml version=&quot;1.0&quot;?&gt; ..."></textarea>
         <div class="actions">
-          <button id="parseTextBtn" class="small">טען טקסט GPX</button>
+          <button id="parseTextBtn" class="small">טען GPX / JSON</button>
           <button id="clearBtn" class="small ghost">נקה</button>
         </div>
       </div>
@@ -224,6 +224,37 @@ function parseGPX(xmlText, fallbackName='Mapeak Course') {
   $('courseName').value = sourceName;
   render();
   setStatus(`נטען בהצלחה: ${sourceName} — ${points.length.toLocaleString()} נקודות.`, 'ok');
+}
+
+function parseMapeakJSON(jsonText) {
+  let data;
+  try { data = JSON.parse(jsonText); }
+  catch(e) { throw new Error('קובץ JSON אינו תקין.'); }
+  if (!data || !Array.isArray(data.routes)) throw new Error('לא נמצא מערך routes של Mapeak.');
+  const route = data.routes.find(r => Array.isArray(r.segments) && r.segments.some(s => Array.isArray(s.latlngs) && s.latlngs.length)) ;
+  if (!route) throw new Error('לא נמצאו מקטעי מסלול ב-JSON.');
+  const parsed = [];
+  for (const segment of route.segments) {
+    for (const p of segment.latlngs || []) {
+      const lat = Number(p.lat), lon = Number(p.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat)>90 || Math.abs(lon)>180) continue;
+      const prev=parsed[parsed.length-1];
+      if (prev && prev.lat===lat && prev.lon===lon) continue;
+      parsed.push({lat, lon, ele:p.alt==null ? null : Number(p.alt), time:p.timestamp || null});
+    }
+  }
+  if (parsed.length<2) throw new Error('לא נמצאו לפחות שתי נקודות מסלול.');
+  points=parsed;
+  sourceName=route.name || 'Mapeak Course';
+  $('courseName').value=sourceName;
+  render();
+  setStatus(`נטען JSON של Mapeak: ${sourceName} — ${points.length.toLocaleString()} נקודות.`, 'ok');
+}
+
+function parseInput(text,name='Mapeak Course') {
+  const trimmed=text.trim();
+  if(trimmed.startsWith('{') || trimmed.startsWith('[')) return parseMapeakJSON(trimmed);
+  return parseGPX(text,name);
 }
 
 function calcStats() {
@@ -420,7 +451,7 @@ async function tryMapeakFetch(){
 
     setStatus('הדף נטען, אך לא נמצא בו GPX גלוי. הורד GPX מתוך Mapeak וגרור אותו לאזור הטעינה.', 'warn');
   }catch(e){
-    setStatus('הדפדפן לא הצליח לקרוא את Mapeak ישירות (בדרך כלל בגלל CORS). פתח את Mapeak, הורד GPX, ואז גרור אותו לכאן. פרטי שגיאה: '+e.message, 'warn');
+    setStatus('לא ניתן לחלץ ישירות מהקישור ('+e.message+'). ניתן להדביק JSON מתוך Network → Payload של בקשת הייצוא או לטעון GPX.', 'warn');
   }
 }
 
@@ -441,13 +472,13 @@ $('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(f)load
 function loadFile(f){
   if(/\.zip$/i.test(f.name)){setStatus('זהו ZIP. חלץ ממנו את קובץ ה־GPX וגרור את ה־GPX לכאן.', 'warn');return;}
   const r=new FileReader();
-  r.onload=()=>{try{parseGPX(r.result,f.name.replace(/\.gpx$/i,''))}catch(e){setStatus(e.message,'err')}};
+  r.onload=()=>{try{parseInput(r.result,f.name.replace(/\.(gpx|json)$/i,''))}catch(e){setStatus(e.message,'err')}};
   r.onerror=()=>setStatus('שגיאה בקריאת הקובץ.','err');
   r.readAsText(f);
 }
 
 $('parseTextBtn').addEventListener('click',()=>{
-  try{parseGPX($('gpxText').value,'Pasted GPX')}catch(e){setStatus(e.message,'err')}
+  try{parseInput($('gpxText').value,'Pasted GPX')}catch(e){setStatus(e.message,'err')}
 });
 $('reverseBtn').addEventListener('click',()=>{
   if(points.length<2)return setStatus('טען מסלול קודם.','warn');
