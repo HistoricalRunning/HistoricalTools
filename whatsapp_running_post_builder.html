@@ -352,6 +352,17 @@
                 <button class="add-route" onclick="addRouteInput()">+ הוסף מסלול</button>
             </div>
 
+            <!-- WhatsApp coordination group -->
+            <div class="form-section" style="margin-top: 1rem;">
+                <div class="form-header">
+                    <input type="checkbox" id="toggle-whatsapp-group" checked />
+                    <label for="toggle-whatsapp-group">קבוצת ווצאפ לתיאומים:</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="whatsapp-group" placeholder="https://chat.whatsapp.com/..." />
+                </div>
+            </div>
+
             <!-- Hashmaba -->
             <div class="form-section" style="margin-top: 1rem;">
                 <div class="form-header">
@@ -464,6 +475,12 @@
                 }
             }
 
+            // WhatsApp coordination group
+            if (document.getElementById('toggle-whatsapp-group').checked) {
+                const whatsappGroup = document.getElementById('whatsapp-group').value.trim();
+                if (whatsappGroup) message += `*קבוצת ווצאפ לתיאומים:*\n${whatsappGroup}\n\n`;
+            }
+
             // Hashmaba
             if (document.getElementById('toggle-hashmaba').checked) {
                 const hashmaba = document.getElementById('hashmaba').value.trim();
@@ -523,6 +540,7 @@
         document.getElementById('location-text').addEventListener('input', updatePreview);
         document.getElementById('location').addEventListener('input', updatePreview);
         document.getElementById('time').addEventListener('input', updatePreview);
+        document.getElementById('whatsapp-group').addEventListener('input', updatePreview);
         document.getElementById('hashmaba').addEventListener('input', updatePreview);
         document.getElementById('historical-run-app').addEventListener('input', updatePreview);
         document.getElementById('reading').addEventListener('input', updatePreview);
