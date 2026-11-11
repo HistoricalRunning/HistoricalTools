@@ -26,11 +26,14 @@
 </section>
 <section class="panel" id="result"><h2>2. פתחו את הבדיקה ב־AI</h2>
 <div class="actions">
-<button class="primary" id="gpt">פתח ב־ChatGPT</button>
-<button class="primary" id="gemini">העתק פרומפט ופתח Gemini</button>
-<button class="secondary wide" id="copy">העתק את הפרומפט</button>
+<button class="primary" id="gpt">ChatGPT <span class="small" style="color:inherit;display:block;font-weight:400">מילוי אוטומטי כשנתמך</span></button>
+<button class="primary" id="claude">Claude <span class="small" style="color:inherit;display:block;font-weight:400">מילוי אוטומטי כשנתמך</span></button>
+<button class="secondary" id="gemini">Gemini <span class="small" style="display:block;font-weight:400">העתק והדבק</span></button>
+<button class="secondary" id="perplexity">Perplexity <span class="small" style="display:block;font-weight:400">העתק והדבק</span></button>
+<button class="secondary" id="copilot">Microsoft Copilot <span class="small" style="display:block;font-weight:400">העתק והדבק</span></button>
+<button class="outline" id="copy">העתק את הפרומפט בלבד</button>
 </div>
-<p class="small">ב־ChatGPT ננסה למלא את הפרומפט דרך הקישור. ב־Gemini הפרומפט מועתק תחילה ללוח, ולאחר פתיחת Gemini יש להדביק אותו בשדה ההודעה. אם ההעתקה נכשלת, ניתן להעתיק מהשדה למטה. ייתכן שתידרש כניסה לחשבון חינמי.</p>
+<div class="note" style="margin-top:14px;background:#eef6fc;color:#174466"><b>איך זה עובד?</b><br>בחרו שירות AI לבדיקת האמינות. ב־ChatGPT וב־Claude ננסה למלא את הפרומפט אוטומטית (לא מובטח). ב־Gemini, Perplexity ו־Copilot נעתיק אותו ללוח: לאחר פתיחת השירות, לחצו לחיצה ארוכה בשדה ההודעה ובחרו <b>״הדבק״</b>.<br>לבסוף לחצו על <b>שליחה</b> בשירות ה־AI. הכלי אינו שולח את הבקשה בעצמו. אם ההעתקה נחסמת, אפשר להעתיק את הטקסט מהשדה שמתחת לכפתורים. שירותי ה־AI עשויים לדרוש התחברות לחשבון, והמגבלות בחינם משתנות.</div>
 <details><summary>הצג / ערוך את הפרומפט</summary><label for="prompt">פרומפט הבדיקה</label><textarea id="prompt" spellcheck="false"></textarea></details>
 </section>
 <section class="panel"><h2>מה הבדיקה דורשת מה־AI?</h2><ul class="checks">
@@ -80,22 +83,35 @@ async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await n
 $('prepare').addEventListener('click',build);
 $('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent='לא נמצא קישור תקין.';});
 $('copy').addEventListener('click',copyPrompt);
-function openAi(service){const p=currentPrompt();if(!p)return;const base='https://chatgpt.com/?q=';const link=base+encodeURIComponent(p);window.open(link,'_blank','noopener,noreferrer');$('status').textContent='נפתח שירות AI. אם הפרומפט לא מופיע בו, לחצו כאן על ״העתק את הפרומפט״ והדביקו.';}
-$('gpt').addEventListener('click',()=>openAi('gpt'));
-$('gemini').addEventListener('click',async()=>{
+const aiTargets={
+ gpt:{name:'ChatGPT',url:'https://chatgpt.com/',query:'q'},
+ claude:{name:'Claude',url:'https://claude.ai/new',query:'q'},
+ gemini:{name:'Gemini',url:'https://gemini.google.com/app'},
+ perplexity:{name:'Perplexity',url:'https://www.perplexity.ai/'},
+ copilot:{name:'Microsoft Copilot',url:'https://copilot.microsoft.com/'}
+};
+function fallbackCopy(){
+ $('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();
+ $('status').textContent='ההעתקה נחסמה. העתיקו את הפרומפט המסומן כאן והדביקו בשירות ה־AI.';
+}
+async function launchAi(id){
  const p=currentPrompt();if(!p)return;
- try{
-  await navigator.clipboard.writeText(p);
-  $('status').textContent='הפרומפט הועתק ללוח. כעת הדביקו אותו בשדה ההודעה של Gemini.';
-  window.location.assign('https://gemini.google.com/app');
- }catch{
-  $('prompt').parentElement.open=true;
-  $('prompt').focus();$('prompt').select();
-  $('status').textContent='הדפדפן חסם העתקה. העתיקו את הטקסט המסומן ואז פתחו את Gemini דרך הקישור הבא:';
-  let a=document.getElementById('manualGemini');
-  if(!a){a=document.createElement('a');a.id='manualGemini';a.href='https://gemini.google.com/app';a.target='_blank';a.rel='noopener noreferrer';a.textContent='פתח Gemini';$('status').after(a);}
+ const target=aiTargets[id];if(!target)return;
+ const url=target.url+(target.query?'?'+target.query+'='+encodeURIComponent(p):'');
+ // Open the tab synchronously in the click handler to avoid popup blockers.
+ const tab=window.open('about:blank','_blank');
+ let copied=false;
+ try{await navigator.clipboard.writeText(p);copied=true;}catch{}
+ if(tab){tab.opener=null;tab.location.replace(url);}
+ else{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='פתח '+target.name;a.id='openAiFallback';const previous=$('openAiFallback');if(previous)previous.remove();$('status').after(a);}
+ if(target.query){
+  $('status').textContent=copied?'נפתח '+target.name+'. אם הפרומפט לא הופיע אוטומטית, הדביקו אותו מהלוח בשדה ההודעה ושלחו.':'נפתח '+target.name+'. אם הפרומפט לא הופיע, העתיקו אותו מהשדה ושלחו.';
+ }else{
+  $('status').textContent=copied?'הפרומפט הועתק! בחלון '+target.name+' לחצו בשדה ההודעה, בחרו ״הדבק״ ואז ״שלח״.':'ההעתקה לא הצליחה. העתיקו את הפרומפט באופן ידני ושלחו ב־'+target.name+'.';
  }
-});
+ if(!copied)fallbackCopy();
+}
+Object.keys(aiTargets).forEach(id=>$(id).addEventListener('click',()=>launchAi(id)));
 const toolLink='https://historicalrunning.github.io/HistoricalTools/purchase-check.html';
 const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\n\n'+toolLink;
 $('shareTool').addEventListener('click',async()=>{
