@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#10243a">
-<meta name="description" content="בודק אמינות קנייה באינטרנט באמצעות AI בחינם">
+<meta name="description" content="לפני שקונים ברשת: בודקים אמינות חנות, ביקורות קונים, אבטחת תשלום, משלוחים והחזרות באמצעות AI בחינם.">
 <link rel="manifest" href="./purchase-check-manifest.webmanifest">
 <link rel="icon" href="./purchase-check-icon.svg" type="image/svg+xml">
 <title>בודק אמינות קנייה | ריצה וקצת היסטוריה</title>
@@ -12,7 +12,7 @@
 </style>
 </head>
 <body><main class="wrap">
-<header class="hero"><h1>🛡️ בדיקת אמינות לפני קנייה</h1><p>שותפים קישור לחנות או למוצר, ומקבלים פרומפט לבדיקת סיכוני רכישה ב־ChatGPT או ב־Google Gemini. ללא API וללא תשלום לאתר זה.</p></header>
+<header class="hero"><h1>🛡️ בדיקת אמינות לפני קנייה</h1><p>מתלבטים אם בטוח להזמין מאתר קניות? מדביקים קישור למוצר או לחנות ומקבלים בדיקת אמינות באמצעות ChatGPT או Google Gemini: אבטחת תשלום, ביקורות של קונים, סיכוי לקבל את המוצר ומדיניות החזרות. הכלי חינמי, ללא צורך במפתח API.</p></header>
 <section class="panel"><h2>1. הקישור לבדיקה</h2>
 <label for="productUrl">כתובת המוצר או האתר</label>
 <textarea id="productUrl" placeholder="https://example.com/products/item" inputmode="url" spellcheck="false"></textarea>
@@ -41,6 +41,7 @@
 <li>הפרדה בין סיכון גניבת אשראי לסיכון אי־אספקה</li>
 <li>מסקנה מנומקת וקישורים למקורות, בלי להמציא נתונים</li>
 </ul><div class="note">האתר אינו סורק את החנות בעצמו. הוא מכין בקשה לבדיקה באמצעות שירות AI חיצוני. התשובות עשויות להיות שגויות או לא עדכניות. אין לשלוח פרטי אשראי, סיסמאות או מידע אישי.</div></section>
+<section class="panel"><h2>שתפו את הכלי עם חברים</h2><p class="small">מכירים מישהו שמתלבט אם להזמין מאתר לא מוכר? שלחו לו את הכלי יחד עם הסבר קצר וקישור.</p><div class="actions"><button class="primary" id="shareTool">שתף את הכלי עם חבר</button><button class="secondary" id="copyTool">העתק הודעה וקישור</button></div><div id="shareStatus" class="status" role="status" aria-live="polite"></div></section>
 <section class="panel"><h2>3. איך מוסיפים לתפריט ״שתף״ בטלפון?</h2><p class="small">פתחו את הדף ב־<b>Chrome באנדרואיד</b>, לחצו על ⋮ ובחרו <b>התקנת אפליקציה</b> (או ״הוספה למסך הבית״ אם זו אפשרות ההתקנה). לאחר התקנת אפליקציית ה־Web, כשמשתפים קישור מדפדפן או מאפליקציה, חפשו בתפריט השיתוף <b>בודק קנייה</b>. אם נוצר רק קיצור דרך ולא הותקנה אפליקציה, ייתכן שהיא לא תופיע ברשימת השיתוף. במקרה כזה אפשר להדביק את הקישור ידנית.</p><button id="install" class="secondary hide">התקן כאפליקציה</button></section>
 <footer>HistoricalTools · כלי חינמי, ללא איסוף קישורים לשרת · <a href="https://github.com/HistoricalRunning/HistoricalTools">GitHub</a></footer>
 </main>
@@ -82,6 +83,18 @@ $('copy').addEventListener('click',copyPrompt);
 function openAi(service){const p=currentPrompt();if(!p)return;const base=service==='gpt'?'https://chatgpt.com/?q=':'https://gemini.google.com/app?text=';const link=base+encodeURIComponent(p);window.open(link,'_blank','noopener,noreferrer');$('status').textContent='נפתח שירות AI. אם הפרומפט לא מופיע בו, לחצו כאן על ״העתק את הפרומפט״ והדביקו.';}
 $('gpt').addEventListener('click',()=>openAi('gpt'));
 $('gemini').addEventListener('click',()=>openAi('gemini'));
+const toolLink='https://historicalrunning.github.io/HistoricalTools/purchase-check.html';
+const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\\n\\n'+toolLink;
+$('shareTool').addEventListener('click',async()=>{
+ try{
+  if(navigator.share){await navigator.share({text:toolShareText});$('shareStatus').textContent='';}
+  else{await navigator.clipboard.writeText(toolShareText);$('shareStatus').textContent='ההודעה הועתקה. אפשר להדביק בוואטסאפ או בכל אפליקציה אחרת.';}
+ }catch(e){if(e.name!=='AbortError')$('shareStatus').textContent='השיתוף לא הצליח. נסו להעתיק את ההודעה.';}
+});
+$('copyTool').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(toolShareText);$('shareStatus').textContent='ההודעה והקישור הועתקו.';}
+ catch{$('shareStatus').textContent='העתקה אוטומטית אינה זמינה בדפדפן הזה.';}
+});
 const inbound=[params.get('url'),params.get('text'),params.get('title'),params.get('link')].map(extractUrl).find(Boolean);
 if(inbound){$('productUrl').value=inbound;build();$('status').textContent='התקבל קישור משיתוף. בחרו AI לבדיקה.';}
 let deferred;
