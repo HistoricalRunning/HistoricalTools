@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10243a">
+<meta name="description" content="בודק אמינות קנייה באינטרנט באמצעות AI בחינם">
+<link rel="manifest" href="./purchase-check-manifest.webmanifest">
+<link rel="icon" href="./purchase-check-icon.svg" type="image/svg+xml">
+<title>בודק אמינות קנייה | ריצה וקצת היסטוריה</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#13243a;background:#f2f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:740px;margin:auto;padding:30px 17px 65px}.hero{background:linear-gradient(120deg,#10243a,#215b79);color:white;padding:30px;border-radius:22px;margin-bottom:22px}h1{font-size:clamp(25px,5vw,36px);margin:0 0 9px}.hero p{margin:0;line-height:1.7;color:#e0f0f9}.panel{background:white;padding:24px;border:1px solid #dce4ee;border-radius:19px;box-shadow:0 5px 24px #17334b0a;margin-bottom:16px}h2{font-size:19px;margin:0 0 14px}label{font-weight:650;display:block;margin:12px 0 8px}textarea,input{font:inherit;display:block;width:100%;padding:13px;border:1px solid #9eafc2;border-radius:11px;color:#13243a;background:white}textarea{min-height:78px;resize:vertical}#prompt{min-height:195px;font-size:13px;line-height:1.6;direction:rtl}button{font:inherit;font-weight:700;cursor:pointer;border:0;border-radius:12px;padding:13px 16px;min-height:48px}button.primary{background:#136fbd;color:#fff}button.secondary{background:#e5eff9;color:#144668}button.outline{border:1px solid #a7b9cc;background:white;color:#164161}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.wide{grid-column:1/-1}.small{font-size:13px;color:#52677d;line-height:1.65}.note{background:#fff8e8;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;color:#69521d}.status{min-height:24px;color:#116b53;font-size:14px;margin:8px 0}.checks{margin:0;padding-right:20px;line-height:1.95}.hide{display:none}footer{text-align:center;font-size:12px;color:#60768a;margin-top:18px}a{color:#126eae}@media(max-width:480px){.panel{padding:18px}.actions{grid-template-columns:1fr}.wide{grid-column:auto}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero"><h1>🛡️ בדיקת אמינות לפני קנייה</h1><p>שותפים קישור לחנות או למוצר, ומקבלים פרומפט לבדיקת סיכוני רכישה ב־ChatGPT או ב־Google Gemini. ללא API וללא תשלום לאתר זה.</p></header>
+<section class="panel"><h2>1. הקישור לבדיקה</h2>
+<label for="productUrl">כתובת המוצר או האתר</label>
+<textarea id="productUrl" placeholder="https://example.com/products/item" inputmode="url" spellcheck="false"></textarea>
+<div class="small">ניתן גם לשתף קישור ישירות מהדפדפן או מאפליקציית קניות באמצעות כפתור ״שתף״ באנדרואיד.</div>
+<label for="comments">הערות או תנאים מיוחדים (לא חובה)</label>
+<input id="comments" placeholder="למשל: משלוח לישראל, מחיר 250 דולר">
+<div class="actions">
+<button class="primary" id="prepare">הכן בדיקת אמינות</button>
+<button class="outline" id="clean">נקה קישור ממעקב פרסומי</button>
+</div><div id="status" class="status" role="status" aria-live="polite"></div>
+</section>
+<section class="panel" id="result"><h2>2. פתחו את הבדיקה ב־AI</h2>
+<div class="actions">
+<button class="primary" id="gpt">פתח ב־ChatGPT</button>
+<button class="primary" id="gemini">פתח ב־Google Gemini</button>
+<button class="secondary wide" id="copy">העתק את הפרומפט</button>
+</div>
+<p class="small">הכפתורים מנסים להעביר את הפרומפט באמצעות קישור. אם שירות ה־AI לא ממלא אותו אוטומטית, העתיקו אותו מכאן והדביקו בצ'אט. ייתכן שתידרש כניסה לחשבון חינמי. בדיקת מקורות בזמן אמת תלויה באפשרויות השירות.</p>
+<details><summary>הצג / ערוך את הפרומפט</summary><label for="prompt">פרומפט הבדיקה</label><textarea id="prompt" spellcheck="false"></textarea></details>
+</section>
+<section class="panel"><h2>מה הבדיקה דורשת מה־AI?</h2><ul class="checks">
+<li>זיהוי החברה, כתובת, גיל הדומיין ושקיפות בעלות</li>
+<li>ביקורות עצמאיות, תלונות והוכחות לאספקת מוצרים</li>
+<li>אבטחת תשלום והגנת צרכן</li>
+<li>משלוח לישראל, מכס, החזרות והחזרים</li>
+<li>הפרדה בין סיכון גניבת אשראי לסיכון אי־אספקה</li>
+<li>מסקנה מנומקת וקישורים למקורות, בלי להמציא נתונים</li>
+</ul><div class="note">האתר אינו סורק את החנות בעצמו. הוא מכין בקשה לבדיקה באמצעות שירות AI חיצוני. התשובות עשויות להיות שגויות או לא עדכניות. אין לשלוח פרטי אשראי, סיסמאות או מידע אישי.</div></section>
+<section class="panel"><h2>3. איך מוסיפים לתפריט ״שתף״ בטלפון?</h2><p class="small">פתחו את הדף ב־<b>Chrome באנדרואיד</b>, לחצו על ⋮ ובחרו <b>התקנת אפליקציה</b> (או ״הוספה למסך הבית״ אם זו אפשרות ההתקנה). לאחר התקנת אפליקציית ה־Web, כשמשתפים קישור מדפדפן או מאפליקציה, חפשו בתפריט השיתוף <b>בודק קנייה</b>. אם נוצר רק קיצור דרך ולא הותקנה אפליקציה, ייתכן שהיא לא תופיע ברשימת השיתוף. במקרה כזה אפשר להדביק את הקישור ידנית.</p><button id="install" class="secondary hide">התקן כאפליקציה</button></section>
+<footer>HistoricalTools · כלי חינמי, ללא איסוף קישורים לשרת · <a href="https://github.com/HistoricalRunning/HistoricalTools">GitHub</a></footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const urlRe=/https?:\/\/[^\s<>"']+/ig;
+function extractUrl(raw){
+ let m=(raw||'').match(urlRe);if(!m)return '';
+ let candidate=m[0].replace(/[.,)\]}]+$/,'');
+ try{let u=new URL(candidate);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch{return '';}
+}
+function stripped(raw){
+ try{const u=new URL(raw);if(!['http:','https:'].includes(u.protocol))return '';
+ [...u.searchParams.keys()].forEach(k=>{if(/^utm_|^fbclid$|^gclid$|^msclkid$|^igshid$|^mc_(cid|eid)$|^fb_(post_id|creator_source)$/i.test(k))u.searchParams.delete(k)});
+ return u.href;}catch{return raw;}
+}
+function makePrompt(url,notes){
+ return [
+'פעל כחוקר עצמאי לבדיקת אמינות רכישות באינטרנט. בצע בדיקה מבוססת מקורות ציבוריים ועדכניים של האתר והמוצר בכתובת:',
+url,
+notes?'נתונים נוספים מהקונה: '+notes:'',
+'',
+'חובה לגלוש ולחפש מקורות חיצוניים עצמאיים כשאפשר. אם אין לך אפשרות גלישה, ציין זאת מיד ואל תציג בדיקה כאילו בוצעה. אל תסתפק בטענות האתר עצמו.',
+'',
+'בדוק: (1) זהות החברה, דרכי קשר וכתובת, גיל הדומיין וזהות מפעיל האתר ככל שניתן לאמת; (2) ביקורות לקוחות מחוץ לאתר, תלונות, פורומים, הוכחות למשלוחים שהתקבלו והבדל בין מוצר מקורי לשיווק דרופשיפינג; (3) אמצעי התשלום, HTTPS, הגנות קונה וסימנים מחשידים, בלי להסיק מ־SSL בלבד שהמוכר אמין; (4) מדיניות משלוחים, זמני אספקה, החזרות, החזר כספי ותנאי הזמנה מוקדמת; (5) משלוח לישראל, מיסים ועלויות החזרה ככל שיש ראיות; (6) סתירות בטקסט, תמונות או הבטחות שיווקיות.',
+'',
+'החזר תשובה בעברית עם: תקציר; טבלת ממצאים הכוללת מקור ותאריך; דירוג נפרד 1–10 עבור בטיחות תשלום, סיכוי לקבל את המוצר, התאמה לתיאור וסיכוי לקבל החזר, בציון ברור שאלו אומדני שיפוט ולא הסתברויות מוכחות; רמת ודאות ומה לא הצלחת לאמת; קישורים למקורות חיצוניים; המלצה מעשית לקנות / לקנות רק בהגנת קונה / להימנע.',
+'אל תמציא ביקורות, תאריכי רישום, דירוגי אתרים או תוצאות בדיקה שלא אומתו. הבחן בין היעדר ראיות לבין ראיה להונאה.'
+ ].filter(Boolean).join('\n');
+}
+function build(){let val=extractUrl($('productUrl').value.trim());if(!val){$('status').textContent='יש להזין קישור תקין המתחיל ב־https://';return null;}$('productUrl').value=val;let p=makePrompt(val,$('comments').value.trim());$('prompt').value=p;$('status').textContent='הפרומפט מוכן. אפשר לפתוח בשירות AI או להעתיק.';return p;}
+function currentPrompt(){return $('prompt').value.trim()||build();}
+async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await navigator.clipboard.writeText(p);$('status').textContent='הפרומפט הועתק. ניתן להדביק אותו ב־AI.';return true;}catch{$('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();$('status').textContent='לא ניתן להעתיק אוטומטית. בחרו העתקה מהטקסט המסומן.';return false;}}
+$('prepare').addEventListener('click',build);
+$('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent='לא נמצא קישור תקין.';});
+$('copy').addEventListener('click',copyPrompt);
+function openAi(service){const p=currentPrompt();if(!p)return;const base=service==='gpt'?'https://chatgpt.com/?q=':'https://gemini.google.com/app?text=';const link=base+encodeURIComponent(p);window.open(link,'_blank','noopener,noreferrer');$('status').textContent='נפתח שירות AI. אם הפרומפט לא מופיע בו, לחצו כאן על ״העתק את הפרומפט״ והדביקו.';}
+$('gpt').addEventListener('click',()=>openAi('gpt'));
+$('gemini').addEventListener('click',()=>openAi('gemini'));
+const inbound=[params.get('url'),params.get('text'),params.get('title'),params.get('link')].map(extractUrl).find(Boolean);
+if(inbound){$('productUrl').value=inbound;build();$('status').textContent='התקבל קישור משיתוף. בחרו AI לבדיקה.';}
+let deferred;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').classList.remove('hide');});
+$('install').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('install').classList.add('hide');});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./purchase-check-sw.js').catch(()=>{}));}
+</script>
+</body></html>
