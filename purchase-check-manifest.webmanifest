@@ -1,0 +1,31 @@
+{
+  "id": "./purchase-check.html",
+  "name": "בודק אמינות קנייה",
+  "short_name": "בודק קנייה",
+  "description": "בדיקת מהימנות חנויות ומוצרים עם AI",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./purchase-check.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f6fb",
+  "theme_color": "#10243a",
+  "icons": [
+    {
+      "src": "./purchase-check-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "./purchase-check.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
