@@ -2,7 +2,7 @@
   "id": "./purchase-check.html",
   "name": "בודק אמינות קנייה",
   "short_name": "בודק קנייה",
-  "description": "בדיקת מהימנות חנויות ומוצרים עם AI",
+  "description": "כלי חינמי לבדיקת אמינות חנויות ומוצרים באמצעות AI: ביקורות, תשלום, משלוחים והחזרות",
   "lang": "he",
   "dir": "rtl",
   "start_url": "./purchase-check.html",
