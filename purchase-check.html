@@ -42,7 +42,7 @@
 <li>מסקנה מנומקת וקישורים למקורות, בלי להמציא נתונים</li>
 </ul><div class="note">האתר אינו סורק את החנות בעצמו. הוא מכין בקשה לבדיקה באמצעות שירות AI חיצוני. התשובות עשויות להיות שגויות או לא עדכניות. אין לשלוח פרטי אשראי, סיסמאות או מידע אישי.</div></section>
 <section class="panel"><h2>שתפו את הכלי עם חברים</h2><p class="small">מכירים מישהו שמתלבט אם להזמין מאתר לא מוכר? שלחו לו את הכלי יחד עם הסבר קצר וקישור.</p><div class="actions"><button class="primary" id="shareTool">שתף את הכלי עם חבר</button><button class="secondary" id="copyTool">העתק הודעה וקישור</button></div><div id="shareStatus" class="status" role="status" aria-live="polite"></div></section>
-<section class="panel"><h2>3. איך מוסיפים לתפריט ״שתף״ בטלפון?</h2><p class="small">פתחו את הדף ב־<b>Chrome באנדרואיד</b>, לחצו על ⋮ ובחרו <b>התקנת אפליקציה</b> (או ״הוספה למסך הבית״ אם זו אפשרות ההתקנה). לאחר התקנת אפליקציית ה־Web, כשמשתפים קישור מדפדפן או מאפליקציה, חפשו בתפריט השיתוף <b>בודק קנייה</b>. אם נוצר רק קיצור דרך ולא הותקנה אפליקציה, ייתכן שהיא לא תופיע ברשימת השיתוף. במקרה כזה אפשר להדביק את הקישור ידנית.</p><button id="install" class="secondary hide">התקן כאפליקציה</button></section>
+<section class="panel"><h2>3. הוספת ״בודק קנייה״ לתפריט השיתוף בטלפון</h2><p class="small">מתקינים את הכלי פעם אחת כאפליקציה, ואז אפשר לשתף אליו קישורי מוצרים מאפליקציות ומדפדפנים באנדרואיד.</p><button id="install" class="primary" style="width:100%">📲 התקן בטלפון והפעל שיתוף ישיר</button><div id="installStatus" class="status" role="status" aria-live="polite"></div><p class="small">אם ההתקנה אינה נפתחת אוטומטית: פתחו את הדף ב־<b>Chrome</b>, לחצו על ⋮ ובחרו <b>התקנת אפליקציה</b>. אחרי ההתקנה, היכנסו למוצר בחנות, לחצו ״שתף״ ובחרו <b>בודק קנייה</b>. התקנה כקיצור דרך בלבד לא בהכרח מוסיפה אפשרות שיתוף.</p></section>
 <footer>HistoricalTools · כלי חינמי, ללא איסוף קישורים לשרת · <a href="https://github.com/HistoricalRunning/HistoricalTools">GitHub</a></footer>
 </main>
 <script>
@@ -98,8 +98,16 @@ $('copyTool').addEventListener('click',async()=>{
 const inbound=[params.get('url'),params.get('text'),params.get('title'),params.get('link')].map(extractUrl).find(Boolean);
 if(inbound){$('productUrl').value=inbound;build();$('status').textContent='התקבל קישור משיתוף. בחרו AI לבדיקה.';}
 let deferred;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').classList.remove('hide');});
-$('install').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('install').classList.add('hide');});
+const setInstallStatus=(message)=>{$('installStatus').textContent=message;};
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+if(isStandalone()){setInstallStatus('האפליקציה כבר פועלת במצב מותקן. אפשר לנסות לשתף אליה קישור מתפריט ״שתף״ של Android.');$('install').textContent='האפליקציה כבר מותקנת';}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!isStandalone())setInstallStatus('ההתקנה מוכנה. לחצו על הכפתור למעלה.');});
+window.addEventListener('appinstalled',()=>{deferred=null;$('install').textContent='האפליקציה הותקנה';setInstallStatus('ההתקנה הסתיימה. נסו לשתף קישור למוצר ובחרו ״בודק קנייה״.');});
+$('install').addEventListener('click',async()=>{
+ if(isStandalone()){setInstallStatus('האפליקציה כבר מותקנת ופתוחה. חפשו ״בודק קנייה״ בתפריט ״שתף״ של הטלפון.');return;}
+ if(deferred){const event=deferred;deferred=null;try{await event.prompt();const choice=await event.userChoice;if(choice.outcome==='accepted'){setInstallStatus('אושרה התקנה. לאחר שתושלם, חפשו את ״בודק קנייה״ בתפריט השיתוף.');}else setInstallStatus('ההתקנה בוטלה. אפשר לנסות שוב דרך התפריט של Chrome.');}catch{setInstallStatus('ההתקנה האוטומטית לא זמינה כרגע. ב־Chrome: ⋮ ← התקנת אפליקציה.');}return;}
+ setInstallStatus('להתקנה: פתחו את הקישור ב־Chrome (לא בדפדפן פנימי של WhatsApp), לחצו ⋮ ובחרו ״התקנת אפליקציה״. ייתכן שתידרש אינטראקציה עם האתר לפני ש־Chrome יאפשר התקנה.');
+});
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./purchase-check-sw.js').catch(()=>{}));}
 </script>
 </body></html>
