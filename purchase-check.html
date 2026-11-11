@@ -8,10 +8,11 @@
 <link rel="icon" href="./purchase-check-icon.svg" type="image/svg+xml">
 <title>בודק אמינות קנייה | ריצה וקצת היסטוריה</title>
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#13243a;background:#f2f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:740px;margin:auto;padding:30px 17px 65px}.hero{background:linear-gradient(120deg,#10243a,#215b79);color:white;padding:30px;border-radius:22px;margin-bottom:22px}h1{font-size:clamp(25px,5vw,36px);margin:0 0 9px}.hero p{margin:0;line-height:1.7;color:#e0f0f9}.panel{background:white;padding:24px;border:1px solid #dce4ee;border-radius:19px;box-shadow:0 5px 24px #17334b0a;margin-bottom:16px}h2{font-size:19px;margin:0 0 14px}label{font-weight:650;display:block;margin:12px 0 8px}textarea,input{font:inherit;display:block;width:100%;padding:13px;border:1px solid #9eafc2;border-radius:11px;color:#13243a;background:white}textarea{min-height:78px;resize:vertical}#prompt{min-height:195px;font-size:13px;line-height:1.6;direction:rtl}button{font:inherit;font-weight:700;cursor:pointer;border:0;border-radius:12px;padding:13px 16px;min-height:48px}button.primary{background:#136fbd;color:#fff}button.secondary{background:#e5eff9;color:#144668}button.outline{border:1px solid #a7b9cc;background:white;color:#164161}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.wide{grid-column:1/-1}.small{font-size:13px;color:#52677d;line-height:1.65}.note{background:#fff8e8;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;color:#69521d}.status{min-height:24px;color:#116b53;font-size:14px;margin:8px 0}.checks{margin:0;padding-right:20px;line-height:1.95}.hide{display:none}footer{text-align:center;font-size:12px;color:#60768a;margin-top:18px}a{color:#126eae}@media(max-width:480px){.panel{padding:18px}.actions{grid-template-columns:1fr}.wide{grid-column:auto}}
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#13243a;background:#f2f6fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:740px;margin:auto;padding:30px 17px 65px}.hero{background:linear-gradient(120deg,#10243a,#215b79);color:white;padding:30px;border-radius:22px;margin-bottom:22px}h1{font-size:clamp(25px,5vw,36px);margin:0 0 9px}.hero p{margin:0;line-height:1.7;color:#e0f0f9}.panel{background:white;padding:24px;border:1px solid #dce4ee;border-radius:19px;box-shadow:0 5px 24px #17334b0a;margin-bottom:16px}h2{font-size:19px;margin:0 0 14px}label{font-weight:650;display:block;margin:12px 0 8px}textarea,input{font:inherit;display:block;width:100%;padding:13px;border:1px solid #9eafc2;border-radius:11px;color:#13243a;background:white}textarea{min-height:78px;resize:vertical}#prompt{min-height:195px;font-size:13px;line-height:1.6;direction:rtl}button{font:inherit;font-weight:700;cursor:pointer;border:0;border-radius:12px;padding:13px 16px;min-height:48px}button.primary{background:#136fbd;color:#fff}button.secondary{background:#e5eff9;color:#144668}button.outline{border:1px solid #a7b9cc;background:white;color:#164161}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.wide{grid-column:1/-1}.small{font-size:13px;color:#52677d;line-height:1.65}.note{background:#fff8e8;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;color:#69521d}.status{min-height:24px;color:#116b53;font-size:14px;margin:8px 0}.checks{margin:0;padding-right:20px;line-height:1.95}.hide{display:none}.language-switch{display:flex;justify-content:flex-end;gap:7px;margin:0 0 14px}.language-switch button{padding:8px 16px;min-height:38px;background:white;color:#144668;border:1px solid #bbccdc}.language-switch button[aria-pressed="true"]{background:#136fbd;color:white;border-color:#136fbd}html[dir="ltr"] #prompt{direction:ltr}html[dir="ltr"] .checks{padding-left:20px;padding-right:0}footer{text-align:center;font-size:12px;color:#60768a;margin-top:18px}a{color:#126eae}@media(max-width:480px){.panel{padding:18px}.actions{grid-template-columns:1fr}.wide{grid-column:auto}}
 </style>
 </head>
 <body><main class="wrap">
+<div class="language-switch" role="group" aria-label="Language / שפה"><button type="button" id="langHe" lang="he" aria-pressed="true">עברית</button><button type="button" id="langEn" lang="en" aria-pressed="false">English</button></div>
 <header class="hero"><h1>🛡️ בדיקת אמינות לפני קנייה</h1><p>מתלבטים אם בטוח להזמין מאתר קניות? מדביקים קישור למוצר או לחנות ומקבלים בדיקת אמינות באמצעות ChatGPT או Google Gemini: אבטחת תשלום, ביקורות של קונים, סיכוי לקבל את המוצר ומדיניות החזרות. הכלי חינמי, ללא צורך במפתח API.</p></header>
 <section class="panel"><h2>1. הקישור לבדיקה</h2>
 <label for="productUrl">כתובת המוצר או האתר</label>
@@ -52,6 +53,97 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
+
+const translations=new Map([
+['🛡️ בדיקת אמינות לפני קנייה','🛡️ Shop safely online'],
+['מתלבטים אם בטוח להזמין מאתר קניות? מדביקים קישור למוצר או לחנות ומקבלים בדיקת אמינות באמצעות ChatGPT או Google Gemini: אבטחת תשלום, ביקורות של קונים, סיכוי לקבל את המוצר ומדיניות החזרות. הכלי חינמי, ללא צורך במפתח API.','Not sure whether an online store is trustworthy? Paste a product or store link and ask an AI service to investigate payment security, independent reviews, delivery reliability and returns. Free to use, no API key needed.'],
+['1. הקישור לבדיקה','1. Enter a link'],
+['כתובת המוצר או האתר','Product or store URL'],
+['ניתן גם לשתף קישור ישירות מהדפדפן או מאפליקציית קניות באמצעות כפתור ״שתף״ באנדרואיד.','You can also share a product link directly from an Android browser or shopping app.'],
+['הערות או תנאים מיוחדים (לא חובה)','Additional details (optional)'],
+['הכן בדיקת אמינות','Prepare trust check'],
+['נקה קישור ממעקב פרסומי','Remove tracking parameters'],
+['2. פתחו את הבדיקה ב־AI','2. Open in an AI service'],
+['מילוי אוטומטי כשנתמך','Auto-fill when supported'],
+['העתק והדבק','Copy and paste'],
+['העתק את הפרומפט בלבד','Copy prompt only'],
+['איך זה עובד?','How does it work?'],
+['בחרו שירות AI לבדיקת האמינות. ב־ChatGPT וב־Claude ננסה למלא את הפרומפט אוטומטית (לא מובטח). ב־Gemini, Perplexity ו־Copilot נעתיק אותו ללוח: לאחר פתיחת השירות, לחצו לחיצה ארוכה בשדה ההודעה ובחרו','Choose an AI service. ChatGPT and Claude may auto-fill the prompt, but this is not guaranteed. For Gemini, Perplexity and Copilot, the prompt is copied to your clipboard. In the AI chat input, long-press and select'],
+['״הדבק״','“Paste”'],
+['לבסוף לחצו על','Finally, press'],
+['שליחה','Send'],
+['בשירות ה־AI. הכלי אינו שולח את הבקשה בעצמו. אם ההעתקה נחסמת, אפשר להעתיק את הטקסט מהשדה שמתחת לכפתורים. שירותי ה־AI עשויים לדרוש התחברות לחשבון, והמגבלות בחינם משתנות.','in the AI service. This tool does not submit the request for you. If clipboard access is blocked, copy the prompt from the field below. An AI account may be required and free-plan limits vary.'],
+['הצג / ערוך את הפרומפט','View / edit the prompt'],
+['פרומפט הבדיקה','Trust-check prompt'],
+['מה הבדיקה דורשת מה־AI?','What does the AI investigate?'],
+['זיהוי החברה, כתובת, גיל הדומיין ושקיפות בעלות','Company identity, contact details, domain age and ownership transparency'],
+['ביקורות עצמאיות, תלונות והוכחות לאספקת מוצרים','Independent reviews, complaints and delivery evidence'],
+['אבטחת תשלום והגנת צרכן','Payment security and buyer protection'],
+['משלוח לישראל, מכס, החזרות והחזרים','Shipping, taxes, returns and refunds for the buyer’s destination'],
+['הפרדה בין סיכון גניבת אשראי לסיכון אי־אספקה','Separate payment-data risk from non-delivery risk'],
+['מסקנה מנומקת וקישורים למקורות, בלי להמציא נתונים','Evidence-based verdict with source links, without fabricated findings'],
+['האתר אינו סורק את החנות בעצמו. הוא מכין בקשה לבדיקה באמצעות שירות AI חיצוני. התשובות עשויות להיות שגויות או לא עדכניות. אין לשלוח פרטי אשראי, סיסמאות או מידע אישי.','This site does not investigate sellers itself. It prepares a request for an external AI service. AI responses can be inaccurate or outdated. Never share card details, passwords or personal information.'],
+['שתפו את הכלי עם חברים','Share this tool'],
+['מכירים מישהו שמתלבט אם להזמין מאתר לא מוכר? שלחו לו את הכלי יחד עם הסבר קצר וקישור.','Know someone considering a purchase from an unfamiliar store? Send them this tool with a brief explanation.'],
+['שתף את הכלי עם חבר','Share with a friend'],
+['העתק הודעה וקישור','Copy message and link'],
+['3. הוספת ״בודק קנייה״ לתפריט השיתוף בטלפון','3. Add this tool to Android’s Share menu'],
+['מתקינים את הכלי פעם אחת כאפליקציה, ואז אפשר לשתף אליו קישורי מוצרים מאפליקציות ומדפדפנים באנדרואיד.','Install this tool as an app once, then share product links to it from Android browsers and apps.'],
+['📲 התקן בטלפון והפעל שיתוף ישיר','📲 Install and enable direct sharing'],
+['אם ההתקנה אינה נפתחת אוטומטית: פתחו את הדף ב־','If the install prompt does not appear, open this page in '],
+[', לחצו על ⋮ ובחרו',', tap ⋮ and choose'],
+['התקנת אפליקציה','Install app'],
+['. אחרי ההתקנה, היכנסו למוצר בחנות, לחצו ״שתף״ ובחרו','. Once installed, open a product, tap Share and choose'],
+['בודק קנייה','Shop Checker'],
+['. התקנה כקיצור דרך בלבד לא בהכרח מוסיפה אפשרות שיתוף.','. A home-screen shortcut alone may not enable direct sharing.'],
+['כלי חינמי, ללא איסוף קישורים לשרת','Free tool, no links collected by our server']
+]);
+const originalTexts=[];
+function rememberTexts(){
+ const walk=document.createTreeWalker(document.querySelector('main'),NodeFilter.SHOW_TEXT);
+ let node;
+ while(node=walk.nextNode()){
+  const val=node.nodeValue.trim();
+  if(translations.has(val))originalTexts.push({node,he:val,en:translations.get(val)});
+ }
+}
+let currentLanguage='he';
+const ui=(he,en)=>currentLanguage==='en'?en:he;
+function languagePrompt(url,notes){
+ return [
+ 'Act as an independent online-shopping trust and fraud-risk researcher. Investigate the seller and product at:',
+ url,
+ notes?'Additional buyer context: '+notes:'',
+ '',
+ 'Browse up-to-date public sources and independently verify claims wherever browsing is available. If you cannot browse, say so clearly and do not pretend that you have checked external evidence. Do not rely exclusively on statements from the seller.',
+ '',
+ 'Investigate: (1) Legal company identity, contact information, address, domain registration age and ownership transparency when verifiable; (2) independent customer reviews, complaints, forums, evidence of actual deliveries, and indicators of dropshipping or copied product listings; (3) payment methods, HTTPS, buyer protection and warning signs, without treating SSL as proof of seller reliability; (4) shipping timelines, pre-orders, return and refund terms; (5) shipping availability, duties, taxes and return costs for the buyer destination if known; (6) inconsistencies in marketing claims, imagery and product descriptions.',
+ '',
+ 'Answer in English. Provide: an executive verdict; a findings table with source links and dates; separate 1–10 subjective ratings for payment safety, confidence in delivery, product-as-described confidence and refund prospects; an explicit confidence level and information you could not independently verify; external references; and a practical recommendation: buy / buy only with buyer protection / avoid.',
+ 'Do not fabricate reviews, registration dates, trust scores, delivery evidence or tests. Distinguish lack of evidence from evidence of fraud. Scores are qualitative judgments, not statistical probabilities.'
+ ].filter(Boolean).join('\n');
+}
+const shareTexts={
+ he:'🛡️ לפני שקונים ברשת, כדאי לבדוק!\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות AI: ביקורות, אבטחת תשלום, משלוחים והחזרות.\n\n',
+ en:'🛡️ Check before you buy online!\nA free tool to investigate online stores and products with AI: independent reviews, payment safety, delivery and refunds.\n\n'
+};
+function applyLanguage(lang){
+ currentLanguage=lang==='en'?'en':'he';
+ document.documentElement.lang=currentLanguage;
+ document.documentElement.dir=currentLanguage==='he'?'rtl':'ltr';
+ document.title=ui('בודק אמינות קנייה | HistoricalTools','Online Shopping Trust Checker | HistoricalTools');
+ document.querySelector('meta[name=description]').content=ui('בדיקת אמינות רכישה באינטרנט באמצעות AI','Check whether an online store is trustworthy with AI');
+ originalTexts.forEach(({node,he,en})=>node.nodeValue=node.nodeValue.replace(currentLanguage==='en'?he:en,currentLanguage==='en'?en:he));
+ $('comments').placeholder=ui('למשל: משלוח לישראל, מחיר 250 דולר','e.g. Shipping to the UK, price $250');
+ $('langHe').setAttribute('aria-pressed',String(currentLanguage==='he'));
+ $('langEn').setAttribute('aria-pressed',String(currentLanguage==='en'));
+ try{localStorage.setItem('purchaseCheckerLanguage',currentLanguage)}catch{}
+ for(const id of ['status','shareStatus','installStatus'])$(id).textContent='';
+ if($('prompt').value.trim()&&extractUrl($('productUrl').value))build();
+ if(isStandalone())setInstallStatus(ui('האפליקציה כבר מותקנת.','The app is already installed.'));
+ $('install').textContent=isStandalone()?ui(ui('האפליקציה כבר מותקנת','App already installed'),'App already installed'):ui('📲 התקן בטלפון והפעל שיתוף ישיר','📲 Install and enable direct sharing');
+}
+
 const urlRe=/https?:\/\/[^\s<>"']+/ig;
 function extractUrl(raw){
  let m=(raw||'').match(urlRe);if(!m)return '';
@@ -64,6 +156,7 @@ function stripped(raw){
  return u.href;}catch{return raw;}
 }
 function makePrompt(url,notes){
+ if(currentLanguage==='en')return languagePrompt(url,notes);
  return [
 'פעל כחוקר עצמאי לבדיקת אמינות רכישות באינטרנט. בצע בדיקה מבוססת מקורות ציבוריים ועדכניים של האתר והמוצר בכתובת:',
 url,
@@ -77,11 +170,11 @@ notes?'נתונים נוספים מהקונה: '+notes:'',
 'אל תמציא ביקורות, תאריכי רישום, דירוגי אתרים או תוצאות בדיקה שלא אומתו. הבחן בין היעדר ראיות לבין ראיה להונאה.'
  ].filter(Boolean).join('\n');
 }
-function build(){let val=extractUrl($('productUrl').value.trim());if(!val){$('status').textContent='יש להזין קישור תקין המתחיל ב־https://';return null;}$('productUrl').value=val;let p=makePrompt(val,$('comments').value.trim());$('prompt').value=p;$('status').textContent='הפרומפט מוכן. אפשר לפתוח בשירות AI או להעתיק.';return p;}
+function build(){let val=extractUrl($('productUrl').value.trim());if(!val){$('status').textContent=ui('יש להזין קישור תקין המתחיל ב־https://','Enter a valid URL beginning with https://');return null;}$('productUrl').value=val;let p=makePrompt(val,$('comments').value.trim());$('prompt').value=p;$('status').textContent=ui('הפרומפט מוכן. אפשר לפתוח בשירות AI או להעתיק.','Prompt ready. Open an AI service or copy it.');return p;}
 function currentPrompt(){return $('prompt').value.trim()||build();}
-async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await navigator.clipboard.writeText(p);$('status').textContent='הפרומפט הועתק. ניתן להדביק אותו ב־AI.';return true;}catch{$('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();$('status').textContent='לא ניתן להעתיק אוטומטית. בחרו העתקה מהטקסט המסומן.';return false;}}
+async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await navigator.clipboard.writeText(p);$('status').textContent=ui('הפרומפט הועתק. ניתן להדביק אותו ב־AI.','Prompt copied. Paste it into the AI chat.');return true;}catch{$('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();$('status').textContent=ui('לא ניתן להעתיק אוטומטית. בחרו העתקה מהטקסט המסומן.','Automatic copying failed. Copy the selected text manually.');return false;}}
 $('prepare').addEventListener('click',build);
-$('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent='לא נמצא קישור תקין.';});
+$('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent=ui('לא נמצא קישור תקין.','No valid URL found.');});
 $('copy').addEventListener('click',copyPrompt);
 const aiTargets={
  gpt:{name:'ChatGPT',url:'https://chatgpt.com/',query:'q'},
@@ -92,7 +185,7 @@ const aiTargets={
 };
 function fallbackCopy(){
  $('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();
- $('status').textContent='ההעתקה נחסמה. העתיקו את הפרומפט המסומן כאן והדביקו בשירות ה־AI.';
+ $('status').textContent=ui('ההעתקה נחסמה. העתיקו את הפרומפט המסומן כאן והדביקו בשירות ה־AI.','Clipboard access was blocked. Copy the selected prompt and paste it into the AI service.');
 }
 async function launchAi(id){
  const p=currentPrompt();if(!p)return;
@@ -103,40 +196,46 @@ async function launchAi(id){
  let copied=false;
  try{await navigator.clipboard.writeText(p);copied=true;}catch{}
  if(tab){tab.opener=null;tab.location.replace(url);}
- else{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='פתח '+target.name;a.id='openAiFallback';const previous=$('openAiFallback');if(previous)previous.remove();$('status').after(a);}
+ else{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=ui('פתח ','Open ')+target.name;a.id='openAiFallback';const previous=$('openAiFallback');if(previous)previous.remove();$('status').after(a);}
  if(target.query){
-  $('status').textContent=copied?'נפתח '+target.name+'. אם הפרומפט לא הופיע אוטומטית, הדביקו אותו מהלוח בשדה ההודעה ושלחו.':'נפתח '+target.name+'. אם הפרומפט לא הופיע, העתיקו אותו מהשדה ושלחו.';
+  $('status').textContent=copied?ui('נפתח '+target.name+'. אם הפרומפט לא הופיע אוטומטית, הדביקו אותו מהלוח בשדה ההודעה ושלחו.',target.name+' opened. If the prompt was not filled automatically, paste it from the clipboard and send.'):ui('נפתח '+target.name+'. אם הפרומפט לא הופיע, העתיקו אותו מהשדה ושלחו.',target.name+' opened. If the prompt is missing, copy it from the field and send.');
  }else{
-  $('status').textContent=copied?'הפרומפט הועתק! בחלון '+target.name+' לחצו בשדה ההודעה, בחרו ״הדבק״ ואז ״שלח״.':'ההעתקה לא הצליחה. העתיקו את הפרומפט באופן ידני ושלחו ב־'+target.name+'.';
+  $('status').textContent=copied?ui('הפרומפט הועתק! בחלון '+target.name+' לחצו בשדה ההודעה, בחרו ״הדבק״ ואז ״שלח״.','Prompt copied! In '+target.name+', paste it into the message field and press Send.'):ui('ההעתקה לא הצליחה. העתיקו את הפרומפט באופן ידני ושלחו ב־'+target.name+'.','Copy failed. Copy the prompt manually and send it in '+target.name+'.');
  }
  if(!copied)fallbackCopy();
 }
 Object.keys(aiTargets).forEach(id=>$(id).addEventListener('click',()=>launchAi(id)));
 const toolLink='https://historicalrunning.github.io/HistoricalTools/purchase-check.html';
-const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\n\n'+toolLink;
+const toolShareText=()=>shareTexts[currentLanguage]+toolLink;
 $('shareTool').addEventListener('click',async()=>{
  try{
-  if(navigator.share){await navigator.share({text:toolShareText});$('shareStatus').textContent='';}
-  else{await navigator.clipboard.writeText(toolShareText);$('shareStatus').textContent='ההודעה הועתקה. אפשר להדביק בוואטסאפ או בכל אפליקציה אחרת.';}
- }catch(e){if(e.name!=='AbortError')$('shareStatus').textContent='השיתוף לא הצליח. נסו להעתיק את ההודעה.';}
+  if(navigator.share){await navigator.share({text:toolShareText()});$('shareStatus').textContent='';}
+  else{await navigator.clipboard.writeText(toolShareText());$('shareStatus').textContent=ui('ההודעה הועתקה. אפשר להדביק בוואטסאפ או בכל אפליקציה אחרת.','Message copied. Paste it into WhatsApp or any other app.');}
+ }catch(e){if(e.name!=='AbortError')$('shareStatus').textContent=ui('השיתוף לא הצליח. נסו להעתיק את ההודעה.','Sharing failed. Try copying the message instead.');}
 });
 $('copyTool').addEventListener('click',async()=>{
- try{await navigator.clipboard.writeText(toolShareText);$('shareStatus').textContent='ההודעה והקישור הועתקו.';}
- catch{$('shareStatus').textContent='העתקה אוטומטית אינה זמינה בדפדפן הזה.';}
+ try{await navigator.clipboard.writeText(toolShareText);$('shareStatus').textContent=ui('ההודעה והקישור הועתקו.','Message and link copied.');}
+ catch{$('shareStatus').textContent=ui('העתקה אוטומטית אינה זמינה בדפדפן הזה.','Clipboard access is unavailable in this browser.');}
 });
 const inbound=[params.get('url'),params.get('text'),params.get('title'),params.get('link')].map(extractUrl).find(Boolean);
-if(inbound){$('productUrl').value=inbound;build();$('status').textContent='התקבל קישור משיתוף. בחרו AI לבדיקה.';}
+if(inbound){$('productUrl').value=inbound;build();$('status').textContent=ui('התקבל קישור משיתוף. בחרו AI לבדיקה.','Shared link received. Choose an AI service.');}
 let deferred;
 const setInstallStatus=(message)=>{$('installStatus').textContent=message;};
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-if(isStandalone()){setInstallStatus('האפליקציה כבר פועלת במצב מותקן. אפשר לנסות לשתף אליה קישור מתפריט ״שתף״ של Android.');$('install').textContent='האפליקציה כבר מותקנת';}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!isStandalone())setInstallStatus('ההתקנה מוכנה. לחצו על הכפתור למעלה.');});
-window.addEventListener('appinstalled',()=>{deferred=null;$('install').textContent='האפליקציה הותקנה';setInstallStatus('ההתקנה הסתיימה. נסו לשתף קישור למוצר ובחרו ״בודק קנייה״.');});
+if(isStandalone()){setInstallStatus(ui('האפליקציה כבר פועלת במצב מותקן. אפשר לנסות לשתף אליה קישור מתפריט ״שתף״ של Android.','App is running in installed mode. You can share a link to it from Android’s Share menu.'));$('install').textContent='האפליקציה כבר מותקנת';}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!isStandalone())setInstallStatus(ui('ההתקנה מוכנה. לחצו על הכפתור למעלה.','Ready to install. Tap the button above.'));});
+window.addEventListener('appinstalled',()=>{deferred=null;$('install').textContent=ui('האפליקציה הותקנה','App installed');setInstallStatus(ui('ההתקנה הסתיימה. נסו לשתף קישור למוצר ובחרו ״בודק קנייה״.','Installation complete. Share a product link and choose Shop Checker.'));});
 $('install').addEventListener('click',async()=>{
- if(isStandalone()){setInstallStatus('האפליקציה כבר מותקנת ופתוחה. חפשו ״בודק קנייה״ בתפריט ״שתף״ של הטלפון.');return;}
- if(deferred){const event=deferred;deferred=null;try{await event.prompt();const choice=await event.userChoice;if(choice.outcome==='accepted'){setInstallStatus('אושרה התקנה. לאחר שתושלם, חפשו את ״בודק קנייה״ בתפריט השיתוף.');}else setInstallStatus('ההתקנה בוטלה. אפשר לנסות שוב דרך התפריט של Chrome.');}catch{setInstallStatus('ההתקנה האוטומטית לא זמינה כרגע. ב־Chrome: ⋮ ← התקנת אפליקציה.');}return;}
- setInstallStatus('להתקנה: פתחו את הקישור ב־Chrome (לא בדפדפן פנימי של WhatsApp), לחצו ⋮ ובחרו ״התקנת אפליקציה״. ייתכן שתידרש אינטראקציה עם האתר לפני ש־Chrome יאפשר התקנה.');
+ if(isStandalone()){setInstallStatus(ui('האפליקציה כבר מותקנת ופתוחה. חפשו ״בודק קנייה״ בתפריט ״שתף״ של הטלפון.','App is already installed. Look for Shop Checker in your phone’s Share menu.'));return;}
+ if(deferred){const event=deferred;deferred=null;try{await event.prompt();const choice=await event.userChoice;if(choice.outcome==='accepted'){setInstallStatus(ui('אושרה התקנה. לאחר שתושלם, חפשו את ״בודק קנייה״ בתפריט השיתוף.','Installation accepted. Once complete, look for Shop Checker in the Share menu.'));}else setInstallStatus(ui('ההתקנה בוטלה. אפשר לנסות שוב דרך התפריט של Chrome.','Installation cancelled. Try again from the Chrome menu.'));}catch{setInstallStatus(ui('ההתקנה האוטומטית לא זמינה כרגע. ב־Chrome: ⋮ ← התקנת אפליקציה.','Automatic install is unavailable. In Chrome: ⋮ → Install app.'));}return;}
+ setInstallStatus(ui('להתקנה: פתחו את הקישור ב־Chrome (לא בדפדפן פנימי של WhatsApp), לחצו ⋮ ובחרו ״התקנת אפליקציה״. ייתכן שתידרש אינטראקציה עם האתר לפני ש־Chrome יאפשר התקנה.','To install: open this page in Chrome (not an in-app browser), tap ⋮ and select Install app. You may need to interact with the page first.'));
 });
+rememberTexts();
+$('langHe').addEventListener('click',()=>applyLanguage('he'));
+$('langEn').addEventListener('click',()=>applyLanguage('en'));
+let preferredLanguage='he';
+try{preferredLanguage=localStorage.getItem('purchaseCheckerLanguage')||((navigator.language||'he').toLowerCase().startsWith('he')?'he':'en');}catch{}
+applyLanguage(preferredLanguage);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./purchase-check-sw.js').catch(()=>{}));}
 </script>
 </body></html>
