@@ -27,10 +27,10 @@
 <section class="panel" id="result"><h2>2. פתחו את הבדיקה ב־AI</h2>
 <div class="actions">
 <button class="primary" id="gpt">פתח ב־ChatGPT</button>
-<button class="primary" id="gemini">פתח ב־Google Gemini</button>
+<button class="primary" id="gemini">העתק פרומפט ופתח Gemini</button>
 <button class="secondary wide" id="copy">העתק את הפרומפט</button>
 </div>
-<p class="small">הכפתורים מנסים להעביר את הפרומפט באמצעות קישור. אם שירות ה־AI לא ממלא אותו אוטומטית, העתיקו אותו מכאן והדביקו בצ'אט. ייתכן שתידרש כניסה לחשבון חינמי. בדיקת מקורות בזמן אמת תלויה באפשרויות השירות.</p>
+<p class="small">ב־ChatGPT ננסה למלא את הפרומפט דרך הקישור. ב־Gemini הפרומפט מועתק תחילה ללוח, ולאחר פתיחת Gemini יש להדביק אותו בשדה ההודעה. אם ההעתקה נכשלת, ניתן להעתיק מהשדה למטה. ייתכן שתידרש כניסה לחשבון חינמי.</p>
 <details><summary>הצג / ערוך את הפרומפט</summary><label for="prompt">פרומפט הבדיקה</label><textarea id="prompt" spellcheck="false"></textarea></details>
 </section>
 <section class="panel"><h2>מה הבדיקה דורשת מה־AI?</h2><ul class="checks">
@@ -80,9 +80,22 @@ async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await n
 $('prepare').addEventListener('click',build);
 $('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent='לא נמצא קישור תקין.';});
 $('copy').addEventListener('click',copyPrompt);
-function openAi(service){const p=currentPrompt();if(!p)return;const base=service==='gpt'?'https://chatgpt.com/?q=':'https://gemini.google.com/app?text=';const link=base+encodeURIComponent(p);window.open(link,'_blank','noopener,noreferrer');$('status').textContent='נפתח שירות AI. אם הפרומפט לא מופיע בו, לחצו כאן על ״העתק את הפרומפט״ והדביקו.';}
+function openAi(service){const p=currentPrompt();if(!p)return;const base='https://chatgpt.com/?q=';const link=base+encodeURIComponent(p);window.open(link,'_blank','noopener,noreferrer');$('status').textContent='נפתח שירות AI. אם הפרומפט לא מופיע בו, לחצו כאן על ״העתק את הפרומפט״ והדביקו.';}
 $('gpt').addEventListener('click',()=>openAi('gpt'));
-$('gemini').addEventListener('click',()=>openAi('gemini'));
+$('gemini').addEventListener('click',async()=>{
+ const p=currentPrompt();if(!p)return;
+ try{
+  await navigator.clipboard.writeText(p);
+  $('status').textContent='הפרומפט הועתק ללוח. כעת הדביקו אותו בשדה ההודעה של Gemini.';
+  window.location.assign('https://gemini.google.com/app');
+ }catch{
+  $('prompt').parentElement.open=true;
+  $('prompt').focus();$('prompt').select();
+  $('status').textContent='הדפדפן חסם העתקה. העתיקו את הטקסט המסומן ואז פתחו את Gemini דרך הקישור הבא:';
+  let a=document.getElementById('manualGemini');
+  if(!a){a=document.createElement('a');a.id='manualGemini';a.href='https://gemini.google.com/app';a.target='_blank';a.rel='noopener noreferrer';a.textContent='פתח Gemini';$('status').after(a);}
+ }
+});
 const toolLink='https://historicalrunning.github.io/HistoricalTools/purchase-check.html';
 const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\n\n'+toolLink;
 $('shareTool').addEventListener('click',async()=>{
