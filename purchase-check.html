@@ -23,7 +23,16 @@
 <div class="actions">
 <button class="primary" id="prepare">הכן בדיקת אמינות</button>
 <button class="outline" id="clean">נקה קישור ממעקב פרסומי</button>
-</div><div id="status" class="status" role="status" aria-live="polite"></div>
+</div><div id="shortLinkBox" class="note hide" role="region" aria-live="polite" style="margin-top:12px">
+ <b id="shortLinkTitle">זוהה קישור מקוצר</b>
+ <p id="shortLinkMessage" style="margin:8px 0">יש לחלץ את כתובת החנות המקורית לפני הבדיקה.</p>
+ <div class="actions">
+ <button type="button" class="secondary" id="resolveShort">נסה לזהות כתובת מקורית</button>
+ <button type="button" class="outline" id="openShort">פתח קישור מקוצר</button>
+ </div>
+ <p id="shortLinkSteps" class="small">אם הזיהוי נכשל: פתחו את הקישור, המתינו לדף המוצר, העתיקו את הכתובת משורת הכתובת והדביקו אותה במקום הקישור המקוצר למעלה.</p>
+</div>
+<div id="status" class="status" role="status" aria-live="polite"></div>
 </section>
 <section class="panel" id="result"><h2>2. פתחו את הבדיקה ב־AI</h2>
 <div class="actions">
@@ -55,6 +64,11 @@ const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 
 const translations=new Map([
+['זוהה קישור מקוצר','Short link detected'],
+['יש לחלץ את כתובת החנות המקורית לפני הבדיקה.','Find the original store URL before running the check.'],
+['נסה לזהות כתובת מקורית','Try to resolve original URL'],
+['פתח קישור מקוצר','Open shortened link'],
+['אם הזיהוי נכשל: פתחו את הקישור, המתינו לדף המוצר, העתיקו את הכתובת משורת הכתובת והדביקו אותה במקום הקישור המקוצר למעלה.','If resolution fails: open the shortened link, wait for the product page, copy the final address from the browser address bar and paste it above.'],
 ['🛡️ בדיקת אמינות לפני קנייה','🛡️ Shop safely online'],
 ['מתלבטים אם בטוח להזמין מאתר קניות? מדביקים קישור למוצר או לחנות ומקבלים בדיקת אמינות באמצעות ChatGPT או Google Gemini: אבטחת תשלום, ביקורות של קונים, סיכוי לקבל את המוצר ומדיניות החזרות. הכלי חינמי, ללא צורך במפתח API.','Not sure whether an online store is trustworthy? Paste a product or store link and ask an AI service to investigate payment security, independent reviews, delivery reliability and returns. Free to use, no API key needed.'],
 ['1. הקישור לבדיקה','1. Enter a link'],
@@ -141,7 +155,8 @@ function applyLanguage(lang){
  for(const id of ['status','shareStatus','installStatus'])$(id).textContent='';
  if($('prompt').value.trim()&&extractUrl($('productUrl').value))build();
  if(isStandalone())setInstallStatus(ui('האפליקציה כבר מותקנת.','The app is already installed.'));
- $('install').textContent=isStandalone()?ui(ui('האפליקציה כבר מותקנת','App already installed'),'App already installed'):ui('📲 התקן בטלפון והפעל שיתוף ישיר','📲 Install and enable direct sharing');
+ refreshShortLinkNotice();
+ $('install').textContent=isStandalone()?ui('האפליקציה כבר מותקנת','App already installed'):ui('📲 התקן בטלפון והפעל שיתוף ישיר','📲 Install and enable direct sharing');
 }
 
 const urlRe=/https?:\/\/[^\s<>"']+/ig;
@@ -155,6 +170,69 @@ function stripped(raw){
  [...u.searchParams.keys()].forEach(k=>{if(/^utm_|^fbclid$|^gclid$|^msclkid$|^igshid$|^mc_(cid|eid)$|^fb_(post_id|creator_source)$/i.test(k))u.searchParams.delete(k)});
  return u.href;}catch{return raw;}
 }
+
+const shortHosts=new Set(['share.google','bit.ly','bitly.com','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','cutt.ly','rb.gy','shorturl.at','rebrand.ly','lnkd.in','buff.ly']);
+const isShortLink=url=>{try{return shortHosts.has(new URL(url).hostname.toLowerCase().replace(/^www\./,''));}catch{return false;}};
+let currentShortUrl='';
+let resolving=false;
+function refreshShortLinkNotice(){
+ const url=extractUrl($('productUrl').value);
+ const short=isShortLink(url);
+ $('shortLinkBox').classList.toggle('hide',!short);
+ $('resolveShort').disabled=resolving;
+ $('openShort').disabled=!short;
+ if(short&&url!==currentShortUrl){
+  $('shortLinkMessage').textContent=ui('יש לחלץ את כתובת החנות המקורית לפני הבדיקה.','Find the original store URL before running the check.');
+  currentShortUrl=url;
+ }
+ return short;
+}
+function setResolvedUrl(url){
+ $('productUrl').value=stripped(url);
+ currentShortUrl='';
+ refreshShortLinkNotice();
+ build();
+}
+async function resolveShortLink(){
+ const original=extractUrl($('productUrl').value);
+ if(!isShortLink(original)){refreshShortLinkNotice();return true;}
+ if(resolving)return false;
+ resolving=true;refreshShortLinkNotice();
+ $('resolveShort').textContent=ui('מנסה לפתור קישור...','Resolving link...');
+ $('shortLinkMessage').textContent=ui('מנסה לעקוב אחרי ההפניה בדפדפן. חלק מהאתרים חוסמים זאת.','Trying to follow the redirect in your browser. Some sites block this.');
+ try{
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),7000);
+  try{
+   // A cross-origin redirect is only observable if the destination allows CORS.
+   for(const method of ['HEAD','GET']){
+    try{
+     const response=await fetch(original,{method,redirect:'follow',mode:'cors',credentials:'omit',signal:controller.signal,cache:'no-store'});
+     const finalUrl=response.url;
+     if(finalUrl&&/^https?:\/\//i.test(finalUrl)&&!isShortLink(finalUrl)&&finalUrl!==original){
+      if(extractUrl($('productUrl').value)===original){setResolvedUrl(finalUrl);$('status').textContent=ui('זוהתה כתובת מקורית והוכנה בדיקה.','Original URL found and the check is ready.');}
+      return true;
+     }
+    }catch(err){if(controller.signal.aborted)break;}
+   }
+  }finally{clearTimeout(timer);}
+ }catch{}
+ finally{
+  resolving=false;
+  $('resolveShort').textContent=ui('נסה לזהות כתובת מקורית','Try to resolve original URL');
+  refreshShortLinkNotice();
+ }
+ $('shortLinkMessage').textContent=ui('הדפדפן לא הצליח לחלץ את כתובת היעד (לרוב בגלל CORS או הפניה בתוך אפליקציה). פתחו את הקישור והעתיקו את הכתובת הסופית.','Your browser could not read the destination (often due to CORS or an in-app redirect). Open the link and copy the final address.');
+ $('status').textContent=ui('לא נשלח קישור מקוצר ל־AI כדי למנוע בדיקה של אתר שגוי.','Shortened link was not sent to AI to avoid checking the wrong site.');
+ return false;
+}
+$('resolveShort').addEventListener('click',resolveShortLink);
+$('openShort').addEventListener('click',()=>{
+ const url=extractUrl($('productUrl').value);
+ if(isShortLink(url))window.open(url,'_blank','noopener,noreferrer');
+});
+$('productUrl').addEventListener('input',()=>{currentShortUrl='';refreshShortLinkNotice();$('prompt').value='';});
+
 function makePrompt(url,notes){
  if(currentLanguage==='en')return languagePrompt(url,notes);
  return [
@@ -170,10 +248,10 @@ notes?'נתונים נוספים מהקונה: '+notes:'',
 'אל תמציא ביקורות, תאריכי רישום, דירוגי אתרים או תוצאות בדיקה שלא אומתו. הבחן בין היעדר ראיות לבין ראיה להונאה.'
  ].filter(Boolean).join('\n');
 }
-function build(){let val=extractUrl($('productUrl').value.trim());if(!val){$('status').textContent=ui('יש להזין קישור תקין המתחיל ב־https://','Enter a valid URL beginning with https://');return null;}$('productUrl').value=val;let p=makePrompt(val,$('comments').value.trim());$('prompt').value=p;$('status').textContent=ui('הפרומפט מוכן. אפשר לפתוח בשירות AI או להעתיק.','Prompt ready. Open an AI service or copy it.');return p;}
-function currentPrompt(){return $('prompt').value.trim()||build();}
+function build(){let val=extractUrl($('productUrl').value.trim());if(isShortLink(val)){refreshShortLinkNotice();$('prompt').value='';$('status').textContent=ui('זהו קישור מקוצר. לחצו על ״נסה לזהות כתובת מקורית״ לפני הבדיקה.','This is a shortened link. Resolve the original URL before continuing.');return null;}if(!val){$('status').textContent=ui('יש להזין קישור תקין המתחיל ב־https://','Enter a valid URL beginning with https://');return null;}$('productUrl').value=val;let p=makePrompt(val,$('comments').value.trim());$('prompt').value=p;$('status').textContent=ui('הפרומפט מוכן. אפשר לפתוח בשירות AI או להעתיק.','Prompt ready. Open an AI service or copy it.');return p;}
+function currentPrompt(){if(isShortLink(extractUrl($('productUrl').value)))return build();return $('prompt').value.trim()||build();}
 async function copyPrompt(){let p=currentPrompt();if(!p)return false;try{await navigator.clipboard.writeText(p);$('status').textContent=ui('הפרומפט הועתק. ניתן להדביק אותו ב־AI.','Prompt copied. Paste it into the AI chat.');return true;}catch{$('prompt').parentElement.open=true;$('prompt').focus();$('prompt').select();$('status').textContent=ui('לא ניתן להעתיק אוטומטית. בחרו העתקה מהטקסט המסומן.','Automatic copying failed. Copy the selected text manually.');return false;}}
-$('prepare').addEventListener('click',build);
+$('prepare').addEventListener('click',async()=>{if(refreshShortLinkNotice())await resolveShortLink();else build();});
 $('clean').addEventListener('click',()=>{const u=extractUrl($('productUrl').value);if(u){$('productUrl').value=stripped(u);build();}else $('status').textContent=ui('לא נמצא קישור תקין.','No valid URL found.');});
 $('copy').addEventListener('click',copyPrompt);
 const aiTargets={
@@ -218,7 +296,7 @@ $('copyTool').addEventListener('click',async()=>{
  catch{$('shareStatus').textContent=ui('העתקה אוטומטית אינה זמינה בדפדפן הזה.','Clipboard access is unavailable in this browser.');}
 });
 const inbound=[params.get('url'),params.get('text'),params.get('title'),params.get('link')].map(extractUrl).find(Boolean);
-if(inbound){$('productUrl').value=inbound;build();$('status').textContent=ui('התקבל קישור משיתוף. בחרו AI לבדיקה.','Shared link received. Choose an AI service.');}
+if(inbound){$('productUrl').value=inbound;if(isShortLink(inbound)){refreshShortLinkNotice();$('status').textContent=ui('התקבל קישור מקוצר. נסו לזהות את הכתובת המקורית.','A shortened link was shared. Trying to find the original URL.');resolveShortLink();}else{build();$('status').textContent=ui('התקבל קישור משיתוף. בחרו AI לבדיקה.','Shared link received. Choose an AI service.');}}
 let deferred;
 const setInstallStatus=(message)=>{$('installStatus').textContent=message;};
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
