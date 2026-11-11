@@ -84,7 +84,7 @@ function openAi(service){const p=currentPrompt();if(!p)return;const base=service
 $('gpt').addEventListener('click',()=>openAi('gpt'));
 $('gemini').addEventListener('click',()=>openAi('gemini'));
 const toolLink='https://historicalrunning.github.io/HistoricalTools/purchase-check.html';
-const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\\n\\n'+toolLink;
+const toolShareText='🛡️ לפני שקונים ברשת, כדאי לבדוק!\nכלי חינמי שמכין בדיקת אמינות לחנות או למוצר באמצעות ChatGPT או Google Gemini: ביקורות של לקוחות, אבטחת תשלום, סיכוי לקבל את המוצר, משלוחים והחזרות.\n\n'+toolLink;
 $('shareTool').addEventListener('click',async()=>{
  try{
   if(navigator.share){await navigator.share({text:toolShareText});$('shareStatus').textContent='';}
